@@ -163,9 +163,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_GameObjects.push_back(m_cam);
 
     //add Player
-    Player* pPlayer = new Player("table", m_d3dDevice.Get(), m_fxFactory);
-    pPlayer->SetScale(0.1f);
-    pPlayer->SetRoll(100.0f);
+    Player* pPlayer = new Player("Humanoid", m_d3dDevice.Get(), m_fxFactory);
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
 
