@@ -67,12 +67,17 @@ void Player::Tick(GameData* _GD)
 	if (_GD->m_KBS.R)
 	{
 		m_acc.y += 40.0f;
+		gravity = -GRAVITY_CONST;
 	}
 
 	if (_GD->m_KBS.F)
 	{
 		m_acc.y -= 40.0f;
 	}
+
+	//update gravity
+	gravity += GRAVITY_CONST;
+	m_acc.y -= gravity;
 
 	//limit motion of the player
 	float length = m_pos.Length();
