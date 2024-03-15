@@ -107,7 +107,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
 
     //L-system like tree
     Tree* tree = new Tree(4, 4, .6f, 10.0f * Vector3::Up, XM_PI / 6.0f, "JEMINA vase -up", m_d3dDevice.Get(), m_fxFactory);
-    m_GameObjects.push_back(tree);  
+    m_GameObjects.push_back(tree);
     // todo: add to cmogo
 
     //Vertex Buffer Game Objects
@@ -163,7 +163,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_GameObjects.push_back(m_cam);
 
     //add Player
-    Player* pPlayer = new Player("Humanoid", m_d3dDevice.Get(), m_fxFactory);
+    Player* pPlayer = new Player("table", m_d3dDevice.Get(), m_fxFactory);
+    pPlayer->SetScale(0.1f);
+    pPlayer->SetRoll(100.0f);
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
 
@@ -178,7 +180,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     pGPGO->SetPos(Vector3(-50.0f, 10.0f, -100.f));
     m_GameObjects.push_back(pGPGO);
     params[0] = params[1] = 20.0f; params[2] = (size_t)32;
-    pGPGO = new GPGO(m_d3dContext.Get(), GPGO_CONE, (float*)&Colors::Navy,params);
+    pGPGO = new GPGO(m_d3dContext.Get(), GPGO_CONE, (float*)&Colors::Navy, params);
     pGPGO->SetPos(Vector3(-50.0f, 10.0f, -70.f));
     m_GameObjects.push_back(pGPGO);
     params[0] = 15.0f;
@@ -190,10 +192,10 @@ void Game::Initialize(HWND _window, int _width, int _height)
     pGPGO->SetPos(Vector3(-50.0f, 10.0f, -10.f));
     m_GameObjects.push_back(pGPGO);
     params[0] = 15.0f;
-    pGPGO = new GPGO(m_d3dContext.Get(), GPGO_DODECAHEDRON, (float*)&Colors::OrangeRed,params);
+    pGPGO = new GPGO(m_d3dContext.Get(), GPGO_DODECAHEDRON, (float*)&Colors::OrangeRed, params);
     pGPGO->SetPos(Vector3(-50.0f, 10.0f, 20.f));
     m_GameObjects.push_back(pGPGO);
-    params[0] =  15.0f; params[1] = (size_t)3;
+    params[0] = 15.0f; params[1] = (size_t)3;
     pGPGO = new GPGO(m_d3dContext.Get(), GPGO_GEOSPHERE, (float*)&Colors::BlueViolet, params);
     pGPGO->SetPos(Vector3(-50.0f, 10.0f, 50.f));
     m_GameObjects.push_back(pGPGO);
@@ -256,9 +258,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
 void Game::Tick()
 {
     m_timer.Tick([&]()
-    {
-        Update(m_timer);
-    });
+        {
+            Update(m_timer);
+        });
 
     Render();
 }
@@ -324,7 +326,7 @@ void Game::Render()
     }
 
     Clear();
-    
+
     //set immediate context of the graphics device
     m_DD->m_pd3dImmediateContext = m_d3dContext.Get();
 
@@ -443,7 +445,7 @@ void Game::CreateDevice()
     //this should work!
 #endif
 
-    static const D3D_FEATURE_LEVEL featureLevels [] =
+    static const D3D_FEATURE_LEVEL featureLevels[] =
     {
         // TODO: Modify for supported Direct3D feature levels
         D3D_FEATURE_LEVEL_11_1,
@@ -469,7 +471,7 @@ void Game::CreateDevice()
         device.ReleaseAndGetAddressOf(),    // returns the Direct3D device created
         &m_featureLevel,                    // returns feature level of device created
         context.ReleaseAndGetAddressOf()    // returns the device immediate context
-        ));
+    ));
 
 #ifndef NDEBUG
     ComPtr<ID3D11Debug> d3dDebug;
@@ -482,7 +484,7 @@ void Game::CreateDevice()
             d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
             d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
 #endif
-            D3D11_MESSAGE_ID hide [] =
+            D3D11_MESSAGE_ID hide[] =
             {
                 D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
                 // TODO: Add more message IDs here as needed.
@@ -505,7 +507,7 @@ void Game::CreateDevice()
 void Game::CreateResources()
 {
     // Clear the previous window size specific context.
-    ID3D11RenderTargetView* nullViews [] = { nullptr };
+    ID3D11RenderTargetView* nullViews[] = { nullptr };
     m_d3dContext->OMSetRenderTargets(static_cast<UINT>(std::size(nullViews)), nullViews, nullptr);
     m_renderTargetView.Reset();
     m_depthStencilView.Reset();
@@ -571,7 +573,7 @@ void Game::CreateResources()
             &fsSwapChainDesc,
             nullptr,
             m_swapChain.ReleaseAndGetAddressOf()
-            ));
+        ));
 
         // This template does not support exclusive fullscreen mode and prevents DXGI from responding to the ALT+ENTER shortcut.
         DX::ThrowIfFailed(dxgiFactory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER));
