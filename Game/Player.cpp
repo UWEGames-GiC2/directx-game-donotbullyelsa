@@ -2,6 +2,7 @@
 #include "Player.h"
 #include <dinput.h>
 #include "GameData.h"
+#include <iostream>
 
 Player::Player(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF) : CMOGO(_fileName, _pd3dDevice, _EF)
 {
@@ -12,6 +13,8 @@ Player::Player(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF)
 
 	SetDrag(0.7);
 	SetPhysicsOn(true);
+
+	gravity_enabled = true;
 }
 
 Player::~Player()
@@ -74,10 +77,6 @@ void Player::Tick(GameData* _GD)
 	{
 		m_acc.y -= 40.0f;
 	}
-
-	//update gravity
-	gravity += GRAVITY_CONST;
-	m_acc.y -= gravity;
 
 	//limit motion of the player
 	float length = m_pos.Length();

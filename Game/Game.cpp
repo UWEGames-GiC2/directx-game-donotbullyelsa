@@ -636,11 +636,21 @@ void Game::CheckCollision()
 {
     for (int i = 0; i < m_PhysicsObjects.size(); i++) for (int j = 0; j < m_ColliderObjects.size(); j++)
     {
+        m_PhysicsObjects[i]->grounded = false;
+
         if (m_PhysicsObjects[i]->Intersects(*m_ColliderObjects[j])) //std::cout << "Collision Detected!" << std::endl;
         {
             XMFLOAT3 eject_vect = Collision::ejectionCMOGO(*m_PhysicsObjects[i], *m_ColliderObjects[j]);
+            //std::cout << eject_vect.x << std::endl << eject_vect.y << std::endl << eject_vect.z << std::endl;
             auto pos = m_PhysicsObjects[i]->GetPos();
             m_PhysicsObjects[i]->SetPos(pos - eject_vect);
+
+            if (eject_vect.y < 0.0f)
+            {
+                m_PhysicsObjects[i]->grounded = true;
+                m_PhysicsObjects[i]->stopGravity();
+                m_PhysicsObjects[i]->gravity = -m_PhysicsObjects[i]->GRAVITY_CONST;
+            }
         }
     }
 }

@@ -110,6 +110,21 @@ CMOGO::~CMOGO()
 void CMOGO::Tick(GameData* _GD)
 {
 	GameObject::Tick(_GD);
+
+	// gravity
+	if (gravity_enabled)
+	{
+		// if grounded, stop gravity
+		if (grounded)
+		{
+			
+		}
+
+		//update gravity
+		gravity += GRAVITY_CONST;
+		m_acc.y -= gravity;
+		//std::cout << gravity << std::endl;
+	}
 }
 
 void CMOGO::Draw(DrawData* _DD)
@@ -172,4 +187,10 @@ bool CMOGO::Intersects(const CMOGO& other) const
 	other.m_collider.Transform(c2, other.m_worldMat);
 
 	return (c1.Intersects(c2));
+}
+
+void CMOGO::stopGravity()
+{
+	m_acc.y = 0;
+	m_vel.y = 0;
 }

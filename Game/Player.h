@@ -16,8 +16,6 @@ public:
 	virtual void Tick(GameData* _GD) override;
 
 protected:
-	const float GRAVITY_CONST = 2.0f;
-	float gravity = 0.0f;
 };
 
 #endif
