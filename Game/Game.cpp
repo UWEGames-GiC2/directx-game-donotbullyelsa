@@ -97,17 +97,19 @@ void Game::Initialize(HWND _window, int _width, int _height)
     float AR = (float)_width / (float)_height;
 
     //example basic 3D stuff
-    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(100.0f, 0.0f, 100.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
     m_GameObjects.push_back(terrain);
-    m_ColliderObjects.push_back(terrain);
+    m_Collectables.push_back(terrain);
 
     Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
-    m_GameObjects.push_back(terrain2);
-    m_ColliderObjects.push_back(terrain2);
+    //m_GameObjects.push_back(terrain2);
+    //m_ColliderObjects.push_back(terrain2);
 
+    /**
     //L-system like tree
     Tree* tree = new Tree(4, 4, .6f, 10.0f * Vector3::Up, XM_PI / 6.0f, "JEMINA vase -up", m_d3dDevice.Get(), m_fxFactory);
-    m_GameObjects.push_back(tree);
+    m_GameObjects.push_back(tree);#
+
     // todo: add to cmogo
 
     //Vertex Buffer Game Objects
@@ -122,7 +124,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
 
     VBCube* cube = new VBCube();
     cube->init(11, m_d3dDevice.Get());
-    cube->SetPos(Vector3(100.0f, 0.0f, 0.0f));
+    cube->SetPos(Vector3(100.0f, 0.0f, 100.0f));
     cube->SetScale(4.0f);
     m_GameObjects.push_back(cube);
 
@@ -156,11 +158,13 @@ void Game::Initialize(HWND _window, int _width, int _height)
     VBMC->SetPitch(-XM_PIDIV2);
     VBMC->SetScale(Vector3(3, 3, 1.5));
     m_GameObjects.push_back(VBMC);
+    **/
 
     //create a base camera
     m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
     m_cam->SetPos(Vector3(0.0f, 200.0f, 200.0f));
     m_GameObjects.push_back(m_cam);
+    
 
     //add Player
     Player* pPlayer = new Player("table", m_d3dDevice.Get(), m_fxFactory);
@@ -173,6 +177,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 0.02f));
     m_GameObjects.push_back(m_TPScam);
 
+    /**
     //test all GPGOs
     float* params = new float[3];
     params[0] = 10.f;  params[1] = 20.0f; params[2] = 30.f;
@@ -223,6 +228,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     pGPGO = new GPGO(m_d3dContext.Get(), GPGO_TORUS, (float*)&Colors::Aquamarine, params);
     pGPGO->SetPos(Vector3(-50.0f, 10.0f, 230.f));
     m_GameObjects.push_back(pGPGO);
+    **/
 
     //create DrawData struct and populate its pointers
     m_DD = new DrawData;
@@ -314,6 +320,7 @@ void Game::Update(DX::StepTimer const& _timer)
     }
 
     CheckCollision();
+    CheckCollect();
 }
 
 // Draws the scene.
@@ -651,6 +658,17 @@ void Game::CheckCollision()
                 m_PhysicsObjects[i]->stopGravity();
                 m_PhysicsObjects[i]->gravity = -m_PhysicsObjects[i]->GRAVITY_CONST;
             }
+        }
+    }
+}
+
+void Game::CheckCollect()
+{
+    for (int i = 0; i < m_PhysicsObjects.size(); i++) for (int j = 0; j < m_Collectables.size(); j++)
+    {
+        if (m_PhysicsObjects[i]->Intersects(*m_Collectables[j]))
+        {
+            m_Collectables[j]->Collect();
         }
     }
 }

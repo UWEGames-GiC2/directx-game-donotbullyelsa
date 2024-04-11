@@ -2,6 +2,7 @@
 #define _VB_GO_H_
 #include "gameobject.h"
 #include "ConstantBuffer.h"
+#include "Collectable.h"
 
 //=================================================================
 //the base Game Object drawn using a Vertex and Index Buffer
