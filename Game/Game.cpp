@@ -97,7 +97,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     float AR = (float)_width / (float)_height;
 
     //example basic 3D stuff
-    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, 0.0f, -200.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
     m_GameObjects.push_back(terrain);
     m_Collectables.push_back(terrain);
 
@@ -669,6 +669,9 @@ void Game::CheckCollect()
         if (m_PhysicsObjects[i]->Intersects(*m_Collectables[j]))
         {
             m_Collectables[j]->Collect();
+
+            m_GameObjects.remove(m_Collectables[j]);
+            m_Collectables.erase(m_Collectables.begin() + j);
         }
     }
 }
