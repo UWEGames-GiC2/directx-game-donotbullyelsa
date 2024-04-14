@@ -16,6 +16,6 @@ void TestSound::Tick(GameData * _GD)
 {
 	if (_GD->m_KBS_tracker.pressed.Space)
 	{
-		Play();
+		//Play();
 	}
 }

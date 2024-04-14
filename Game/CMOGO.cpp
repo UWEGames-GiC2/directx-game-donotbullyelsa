@@ -114,12 +114,6 @@ void CMOGO::Tick(GameData* _GD)
 	// gravity
 	if (gravity_enabled)
 	{
-		// if grounded, stop gravity
-		if (grounded)
-		{
-			
-		}
-
 		//update gravity
 		gravity += GRAVITY_CONST;
 		m_acc.y -= gravity;
@@ -193,4 +187,5 @@ void CMOGO::stopGravity()
 {
 	m_acc.y = 0;
 	m_vel.y = 0;
+	gravity = -GRAVITY_CONST;
 }

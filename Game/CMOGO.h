@@ -26,6 +26,7 @@ public:
 	virtual bool Intersects(const CMOGO& other) const;
 	bool grounded = false;
 	void stopGravity();
+	Vector3 last_pos = { 0.0f, 0.0f, 0.0f };
 
 	BoundingOrientedBox&		getCollider()		noexcept { return m_collider; }
 	const BoundingOrientedBox&	getCollider() const noexcept { return m_collider; }

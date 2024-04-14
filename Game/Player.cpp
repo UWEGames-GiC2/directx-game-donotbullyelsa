@@ -78,6 +78,17 @@ void Player::Tick(GameData* _GD)
 		m_acc.y -= 40.0f;
 	}
 
+	//jump
+	if (_GD->m_KBS_tracker.pressed.Space)
+	{
+		std::cout << grounded;
+		if (grounded)
+		{
+			m_vel.y += 100.0f;
+			gravity = -GRAVITY_CONST;
+		}
+	}
+
 	//limit motion of the player
 	float length = m_pos.Length();
 	float maxLength = 500.0f;

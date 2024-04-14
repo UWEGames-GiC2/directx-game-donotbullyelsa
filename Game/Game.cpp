@@ -97,11 +97,12 @@ void Game::Initialize(HWND _window, int _width, int _height)
     float AR = (float)_width / (float)_height;
 
     //example basic 3D stuff
-    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, 0.0f, -200.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
     m_GameObjects.push_back(terrain);
-    m_Collectables.push_back(terrain);
+    m_ColliderObjects.push_back(terrain);
+    //m_Collectables.push_back(terrain);
 
-    Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
+    //Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
     //m_GameObjects.push_back(terrain2);
     //m_ColliderObjects.push_back(terrain2);
 
@@ -297,7 +298,8 @@ void Game::Update(DX::StepTimer const& _timer)
     ReadInput();
     //upon space bar switch camera state
     //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
-    if (m_GD->m_KBS_tracker.pressed.Space)
+    //if (m_GD->m_KBS_tracker.pressed.Space)
+    if (m_GD->m_KBS_tracker.pressed.G)
     {
         if (m_GD->m_GS == GS_PLAY_MAIN_CAM)
         {
@@ -643,8 +645,6 @@ void Game::CheckCollision()
 {
     for (int i = 0; i < m_PhysicsObjects.size(); i++) for (int j = 0; j < m_ColliderObjects.size(); j++)
     {
-        m_PhysicsObjects[i]->grounded = false;
-
         if (m_PhysicsObjects[i]->Intersects(*m_ColliderObjects[j])) //std::cout << "Collision Detected!" << std::endl;
         {
             XMFLOAT3 eject_vect = Collision::ejectionCMOGO(*m_PhysicsObjects[i], *m_ColliderObjects[j]);
@@ -652,13 +652,21 @@ void Game::CheckCollision()
             auto pos = m_PhysicsObjects[i]->GetPos();
             m_PhysicsObjects[i]->SetPos(pos - eject_vect);
 
-            if (eject_vect.y < 0.0f)
+            if (eject_vect.y <= 0.0f) //HERE
             {
+                std::cout << "test\n";
                 m_PhysicsObjects[i]->grounded = true;
                 m_PhysicsObjects[i]->stopGravity();
-                m_PhysicsObjects[i]->gravity = -m_PhysicsObjects[i]->GRAVITY_CONST;
-            }
+            }       
         }
+        else
+        {
+            std::cout << "aooi\n";
+            m_PhysicsObjects[i]->grounded = false;
+        }
+
+        //record the current position for next frame
+        m_PhysicsObjects[i]->last_pos = m_PhysicsObjects[i]->GetPos();
     }
 }
 
