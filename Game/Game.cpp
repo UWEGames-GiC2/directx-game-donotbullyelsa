@@ -65,7 +65,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
 
     //create GameData struct and populate its pointers
     m_GD = new GameData;
-    m_GD->m_GS = GS_PLAY_MAIN_CAM;
+    m_GD->m_GS = GS_MENU;
 
     //set up systems for 2D rendering
     m_DD2D = new DrawData2D();
@@ -259,6 +259,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
 
     TestSound* TS = new TestSound(m_audioEngine.get(), "Explo1");
     m_Sounds.push_back(TS);
+
+    //Menu
+    m_menu = Menu();
 }
 
 // Executes the basic game loop.
@@ -275,54 +278,67 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& _timer)
 {
-    float elapsedTime = float(_timer.GetElapsedSeconds());
-    m_GD->m_dt = elapsedTime;
-
-    //this will update the audio engine but give us chance to do somehting else if that isn't working
-    if (!m_audioEngine->Update())
+    switch (m_GD->m_GS)
     {
-        if (m_audioEngine->IsCriticalError())
+        case GameState::GS_MENU:
         {
-            // We lost the audio device!
+            m_menu.Update(_timer.GetElapsedSeconds());
+            break;
+        }
+
+        default:
+        {
+
+            float elapsedTime = float(_timer.GetElapsedSeconds());
+            m_GD->m_dt = elapsedTime;
+
+            //this will update the audio engine but give us chance to do somehting else if that isn't working
+            if (!m_audioEngine->Update())
+            {
+                if (m_audioEngine->IsCriticalError())
+                {
+                    // We lost the audio device!
+                }
+            }
+            else
+            {
+                //update sounds playing
+                for (list<Sound*>::iterator it = m_Sounds.begin(); it != m_Sounds.end(); it++)
+                {
+                    (*it)->Tick(m_GD);
+                }
+            }
+
+            ReadInput();
+            //upon space bar switch camera state
+            //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
+            //if (m_GD->m_KBS_tracker.pressed.Space)
+            if (m_GD->m_KBS_tracker.pressed.G)
+            {
+                if (m_GD->m_GS == GS_PLAY_MAIN_CAM)
+                {
+                    m_GD->m_GS = GS_PLAY_TPS_CAM;
+                }
+                else
+                {
+                    m_GD->m_GS = GS_PLAY_MAIN_CAM;
+                }
+            }
+
+            //update all objects
+            for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
+            {
+                (*it)->Tick(m_GD);
+            }
+            for (list<GameObject2D*>::iterator it = m_GameObjects2D.begin(); it != m_GameObjects2D.end(); it++)
+            {
+                (*it)->Tick(m_GD);
+            }
+
+            CheckCollision();
+            CheckCollect();
         }
     }
-    else
-    {
-        //update sounds playing
-        for (list<Sound*>::iterator it = m_Sounds.begin(); it != m_Sounds.end(); it++)
-        {
-            (*it)->Tick(m_GD);
-        }
-    }
-
-    ReadInput();
-    //upon space bar switch camera state
-    //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
-    //if (m_GD->m_KBS_tracker.pressed.Space)
-    if (m_GD->m_KBS_tracker.pressed.G)
-    {
-        if (m_GD->m_GS == GS_PLAY_MAIN_CAM)
-        {
-            m_GD->m_GS = GS_PLAY_TPS_CAM;
-        }
-        else
-        {
-            m_GD->m_GS = GS_PLAY_MAIN_CAM;
-        }
-    }
-
-    //update all objects
-    for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
-    {
-        (*it)->Tick(m_GD);
-    }
-    for (list<GameObject2D*>::iterator it = m_GameObjects2D.begin(); it != m_GameObjects2D.end(); it++)
-    {
-        (*it)->Tick(m_GD);
-    }
-
-    CheckCollision();
-    CheckCollect();
 }
 
 // Draws the scene.
@@ -335,6 +351,24 @@ void Game::Render()
     }
 
     Clear();
+
+
+
+    switch (m_GD->m_GS)
+    {
+        case GameState::GS_MENU:
+        {
+            m_menu.Render();
+            break;
+        }
+
+        default:
+        {
+            
+
+            
+        }
+    }
 
     //set immediate context of the graphics device
     m_DD->m_pd3dImmediateContext = m_d3dContext.Get();
@@ -643,43 +677,45 @@ void Game::ReadInput()
 
 void Game::CheckCollision()
 {
-    for (int i = 0; i < m_PhysicsObjects.size(); i++) for (int j = 0; j < m_ColliderObjects.size(); j++)
+    for (auto& m_PO: m_PhysicsObjects) for (auto& m_CO: m_ColliderObjects)
     {
-        if (m_PhysicsObjects[i]->Intersects(*m_ColliderObjects[j])) //std::cout << "Collision Detected!" << std::endl;
+        if (m_PO->Intersects(*m_CO)) //std::cout << "Collision Detected!" << std::endl;
         {
-            XMFLOAT3 eject_vect = Collision::ejectionCMOGO(*m_PhysicsObjects[i], *m_ColliderObjects[j]);
+            XMFLOAT3 eject_vect = Collision::ejectionCMOGO(*m_PO, *m_CO);
             //std::cout << eject_vect.x << std::endl << eject_vect.y << std::endl << eject_vect.z << std::endl;
-            auto pos = m_PhysicsObjects[i]->GetPos();
-            m_PhysicsObjects[i]->SetPos(pos - eject_vect);
+            auto pos = m_PO->GetPos();
+            m_PO->SetPos(pos - eject_vect);
 
-            if (eject_vect.y <= 0.0f) //HERE
+            if (eject_vect.y <= 0.0f)
             {
-                std::cout << "test\n";
-                m_PhysicsObjects[i]->grounded = true;
-                m_PhysicsObjects[i]->stopGravity();
+                m_PO->grounded = true;
+                m_PO->stopGravity();
             }       
         }
         else
         {
-            std::cout << "aooi\n";
-            m_PhysicsObjects[i]->grounded = false;
+            m_PO->grounded = false;
         }
 
         //record the current position for next frame
-        m_PhysicsObjects[i]->last_pos = m_PhysicsObjects[i]->GetPos();
+        m_PO->last_pos = m_PO->GetPos();
     }
 }
 
 void Game::CheckCollect()
 {
-    for (int i = 0; i < m_PhysicsObjects.size(); i++) for (int j = 0; j < m_Collectables.size(); j++)
+    for (auto& m_PO : m_PhysicsObjects)
     {
-        if (m_PhysicsObjects[i]->Intersects(*m_Collectables[j]))
+        int j = 0;
+        for (auto& m_Cs : m_Collectables)
         {
-            m_Collectables[j]->Collect();
-
-            m_GameObjects.remove(m_Collectables[j]);
-            m_Collectables.erase(m_Collectables.begin() + j);
+            if (m_PO->Intersects(*m_Cs))
+            {
+                m_Cs->Collect();
+                m_GameObjects.remove(m_Cs);
+                m_Collectables.erase(m_Collectables.begin() + j);
+            }
+            j++;
         }
     }
 }

@@ -13,6 +13,7 @@
 #include "Audio.h"
 #include "CMOGO.h"
 #include "Collectable.h"
+#include "Menu.h"
 
 using std::list;
 
@@ -118,6 +119,8 @@ private:
 
     void CheckCollision();
     void CheckCollect();
+
+    Menu m_menu;
                                          
     //sound stuff
 	//This uses a simple system, but a better pipeline can be used using Wave Banks

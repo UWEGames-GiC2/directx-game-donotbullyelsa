@@ -12,7 +12,8 @@ enum GameState {
 	GS_PLAY_TPS_CAM,
 	GS_PAUSE,
 	GS_GAME_OVER,
-	GS_COUNT
+	GS_COUNT,
+	GS_MENU
 };
 
 #endif
