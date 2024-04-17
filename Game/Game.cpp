@@ -241,15 +241,15 @@ void Game::Initialize(HWND _window, int _width, int _height)
     //example basic 2D stuff
     ImageGO2D* logo = new ImageGO2D("logo_small", m_d3dDevice.Get());
     logo->SetPos(200.0f * Vector2::One);
-    m_GameObjects2D.push_back(logo);
+    m_MenuObjects2D.push_back(logo);
     ImageGO2D* bug_test = new ImageGO2D("bug_test", m_d3dDevice.Get());
     bug_test->SetPos(300.0f * Vector2::One);
-    m_GameObjects2D.push_back(bug_test);
+    m_menu.Add2D(bug_test);
 
     TextGO2D* text = new TextGO2D("Test Text");
     text->SetPos(Vector2(100, 10));
     text->SetColour(Color((float*)&Colors::Yellow));
-    m_GameObjects2D.push_back(text);
+    m_MenuObjects2D.push_back(text);
 
     //Test Sounds
     Loop* loop = new Loop(m_audioEngine.get(), "NightAmbienceSimple_02");
@@ -261,7 +261,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_Sounds.push_back(TS);
 
     //Menu
-    m_menu = Menu();
+    m_menu = GameMenu();
 }
 
 // Executes the basic game loop.
@@ -352,24 +352,6 @@ void Game::Render()
 
     Clear();
 
-
-
-    switch (m_GD->m_GS)
-    {
-        case GameState::GS_MENU:
-        {
-            m_menu.Render();
-            break;
-        }
-
-        default:
-        {
-            
-
-            
-        }
-    }
-
     //set immediate context of the graphics device
     m_DD->m_pd3dImmediateContext = m_d3dContext.Get();
 
@@ -383,6 +365,40 @@ void Game::Render()
     //update the constant buffer for the rendering of VBGOs
     VBGO::UpdateConstantBuffer(m_DD);
 
+    switch (m_GD->m_GS)
+    {
+        case GameState::GS_MENU:
+        {
+            
+
+            break;
+        }
+
+        default:
+        {
+            
+        }
+    }
+
+    list<GameObject*> m_GameObjects1;
+    list<GameObject2D*> m_GameObjects2D1;
+
+    m_GameObjects2D1 = m_menu.Render2D();
+
+    for (list<GameObject*>::iterator it = m_GameObjects1.begin(); it != m_GameObjects1.end(); it++)
+    {
+        (*it)->Draw(m_DD);
+    }
+
+    // Draw sprite batch stuff 
+    m_DD2D->m_Sprites->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
+    for (list<GameObject2D*>::iterator it = m_MenuObjects2D.begin(); it != m_MenuObjects2D.end(); it++)
+    {
+        (*it)->Draw(m_DD2D);
+    }
+
+    m_DD2D->m_Sprites->End();
+    /**
     //Draw 3D Game Obejects
     for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
     {
@@ -395,7 +411,9 @@ void Game::Render()
     {
         (*it)->Draw(m_DD2D);
     }
+
     m_DD2D->m_Sprites->End();
+    **/
 
     //drawing text screws up the Depth Stencil State, this puts it back again!
     m_d3dContext->OMSetDepthStencilState(m_states->DepthDefault(), 0);

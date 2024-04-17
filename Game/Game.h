@@ -13,7 +13,7 @@
 #include "Audio.h"
 #include "CMOGO.h"
 #include "Collectable.h"
-#include "Menu.h"
+#include "GameMenu.h"
 
 using std::list;
 
@@ -63,6 +63,7 @@ private:
 
     void Update(DX::StepTimer const& _timer);
     void Render();
+    void AddToDraw();
 
     void Clear();
     void Present();
@@ -109,6 +110,7 @@ private:
 
     list<GameObject*> m_GameObjects; //data structure to hold pointers to the 3D Game Objects
     list<GameObject2D*> m_GameObjects2D; //data structure to hold pointers to the 2D Game Objects 
+    list<GameObject2D*> m_MenuObjects2D; 
 
     //list<CMOGO*> m_CMOGameObjects; //data structure to hold pointers to all 3D CMO Game Objects
     //list<CMOGO*> m_PhysicsObjects
@@ -120,7 +122,7 @@ private:
     void CheckCollision();
     void CheckCollect();
 
-    Menu m_menu;
+    GameMenu m_menu;
                                          
     //sound stuff
 	//This uses a simple system, but a better pipeline can be used using Wave Banks
