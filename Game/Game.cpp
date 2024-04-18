@@ -238,16 +238,23 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_DD->m_cam = m_cam;
     m_DD->m_light = m_light;
 
+    /**
     //example basic 2D stuff
     ImageGO2D* logo = new ImageGO2D("logo_small", m_d3dDevice.Get());
     logo->SetPos(200.0f * Vector2::One);
     m_MenuObjects2D.push_back(logo);
     ImageGO2D* bug_test = new ImageGO2D("bug_test", m_d3dDevice.Get());
     bug_test->SetPos(300.0f * Vector2::One);
-    m_menu.Add2D(bug_test);
+    m_MenuObjects2D.push_back(bug_test);
 
     TextGO2D* text = new TextGO2D("Test Text");
     text->SetPos(Vector2(100, 10));
+    text->SetColour(Color((float*)&Colors::Yellow));
+    m_MenuObjects2D.push_back(text);
+    **/
+
+    TextGO2D* text = new TextGO2D("DirectX Game");
+    text->SetPos(Vector2(0, 0));
     text->SetColour(Color((float*)&Colors::Yellow));
     m_MenuObjects2D.push_back(text);
 
@@ -259,9 +266,6 @@ void Game::Initialize(HWND _window, int _width, int _height)
 
     TestSound* TS = new TestSound(m_audioEngine.get(), "Explo1");
     //m_Sounds.push_back(TS);
-
-    //Menu
-    m_menu = GameMenu();
 }
 
 // Executes the basic game loop.
@@ -278,38 +282,46 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& _timer)
 {
+    float elapsedTime = float(_timer.GetElapsedSeconds());
+    m_GD->m_dt = elapsedTime;
+
+    //this will update the audio engine but give us chance to do somehting else if that isn't working
+    if (!m_audioEngine->Update())
+    {
+        if (m_audioEngine->IsCriticalError())
+        {
+            // We lost the audio device!
+        }
+    }
+    else
+    {
+        //update sounds playing
+        for (list<Sound*>::iterator it = m_Sounds.begin(); it != m_Sounds.end(); it++)
+        {
+            (*it)->Tick(m_GD);
+        }
+    }
+
+    ReadInput();
+
+
+    //std::cout << true;
+    std::cout << (m_GD->m_GS == GameState::GS_MENU);
     switch (m_GD->m_GS)
     {
         case GameState::GS_MENU:
         {
-            m_menu.Update(_timer.GetElapsedSeconds());
+            //input
+            if (m_GD->m_KBS.F)
+            {
+                m_GD->m_GS = GameState::GS_PLAY_MAIN_CAM;
+            }
             break;
         }
 
         default:
         {
 
-            float elapsedTime = float(_timer.GetElapsedSeconds());
-            m_GD->m_dt = elapsedTime;
-
-            //this will update the audio engine but give us chance to do somehting else if that isn't working
-            if (!m_audioEngine->Update())
-            {
-                if (m_audioEngine->IsCriticalError())
-                {
-                    // We lost the audio device!
-                }
-            }
-            else
-            {
-                //update sounds playing
-                for (list<Sound*>::iterator it = m_Sounds.begin(); it != m_Sounds.end(); it++)
-                {
-                    (*it)->Tick(m_GD);
-                }
-            }
-
-            ReadInput();
             //upon space bar switch camera state
             //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
             //if (m_GD->m_KBS_tracker.pressed.Space)
@@ -369,56 +381,41 @@ void Game::Render()
     {
         case GameState::GS_MENU:
         {
-            
+
+            // Draw sprite batch stuff 
+            Draw2D(m_MenuObjects2D);
 
             break;
         }
 
         default:
         {
-            
+            //Draw 3D Game Obejects
+            for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
+            {
+                (*it)->Draw(m_DD);
+            }
+
+            // Draw sprite batch stuff 
+            Draw2D(m_GameObjects2D);
         }
     }
-
-    list<GameObject*> m_GameObjects1;
-    list<GameObject2D*> m_GameObjects2D1;
-
-    m_GameObjects2D1 = m_menu.Render2D();
-
-    for (list<GameObject*>::iterator it = m_GameObjects1.begin(); it != m_GameObjects1.end(); it++)
-    {
-        (*it)->Draw(m_DD);
-    }
-
-    // Draw sprite batch stuff 
-    m_DD2D->m_Sprites->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-    for (list<GameObject2D*>::iterator it = m_MenuObjects2D.begin(); it != m_MenuObjects2D.end(); it++)
-    {
-        (*it)->Draw(m_DD2D);
-    }
-
-    m_DD2D->m_Sprites->End();
-    /**
-    //Draw 3D Game Obejects
-    for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
-    {
-        (*it)->Draw(m_DD);
-    }
-
-    // Draw sprite batch stuff 
-    m_DD2D->m_Sprites->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-    for (list<GameObject2D*>::iterator it = m_GameObjects2D.begin(); it != m_GameObjects2D.end(); it++)
-    {
-        (*it)->Draw(m_DD2D);
-    }
-
-    m_DD2D->m_Sprites->End();
-    **/
 
     //drawing text screws up the Depth Stencil State, this puts it back again!
     m_d3dContext->OMSetDepthStencilState(m_states->DepthDefault(), 0);
 
     Present();
+}
+
+void Game::Draw2D(list<GameObject2D*> list_of_GO2D)
+{
+    m_DD2D->m_Sprites->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
+    for (list<GameObject2D*>::iterator it = list_of_GO2D.begin(); it != list_of_GO2D.end(); it++)
+    {
+        (*it)->Draw(m_DD2D);
+    }
+
+    m_DD2D->m_Sprites->End();
 }
 
 // Helper method to clear the back buffers.
