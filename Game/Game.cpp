@@ -254,11 +254,11 @@ void Game::Initialize(HWND _window, int _width, int _height)
     //Test Sounds
     Loop* loop = new Loop(m_audioEngine.get(), "NightAmbienceSimple_02");
     loop->SetVolume(0.1f);
-    loop->Play();
-    m_Sounds.push_back(loop);
+    //loop->Play();
+    //m_Sounds.push_back(loop);
 
     TestSound* TS = new TestSound(m_audioEngine.get(), "Explo1");
-    m_Sounds.push_back(TS);
+    //m_Sounds.push_back(TS);
 
     //Menu
     m_menu = GameMenu();
