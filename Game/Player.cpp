@@ -81,7 +81,6 @@ void Player::Tick(GameData* _GD)
 	//jump
 	if (_GD->m_KBS_tracker.pressed.Space)
 	{
-		std::cout << grounded;
 		if (grounded)
 		{
 			m_vel.y += 100.0f;
