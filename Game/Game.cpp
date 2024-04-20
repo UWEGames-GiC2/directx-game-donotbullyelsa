@@ -40,6 +40,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_outputWidth = std::max(_width, 1);
     m_outputHeight = std::max(_height, 1);
 
+    //get window size
+    GetDefaultSize(winX, winY);
+
     CreateDevice();
 
     CreateResources();
@@ -97,9 +100,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
     float AR = (float)_width / (float)_height;
 
     //example basic 3D stuff
-    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
-    m_GameObjects.push_back(terrain);
-    m_ColliderObjects.push_back(terrain);
+    //Terrain* terrain = new Terrain("ammo_pistol", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    //m_GameObjects.push_back(terrain);
+    //m_ColliderObjects.push_back(terrain);
     //m_Collectables.push_back(terrain);
 
     //Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
@@ -171,6 +174,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     Player* pPlayer = new Player("table", m_d3dDevice.Get(), m_fxFactory);
     pPlayer->SetScale(0.1f);
     pPlayer->SetRoll(100.0f);
+    pPlayer->visible = false;
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
 
@@ -254,7 +258,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     **/
 
     TextGO2D* text = new TextGO2D("DirectX Game");
-    text->SetPos(Vector2(0, 0));
+    text->SetPos(Vector2(winX / 5, winY / 5));
     text->SetColour(Color((float*)&Colors::Yellow));
     m_MenuObjects2D.push_back(text);
 
@@ -302,17 +306,16 @@ void Game::Update(DX::StepTimer const& _timer)
         }
     }
 
+    //read input
     ReadInput();
 
-
-    //std::cout << true;
-    std::cout << (m_GD->m_GS == GameState::GS_MENU);
+    //gamestates
     switch (m_GD->m_GS)
     {
         case GameState::GS_MENU:
         {
             //input
-            if (m_GD->m_KBS.F)
+            if (m_GD->m_KBS.Enter)
             {
                 m_GD->m_GS = GameState::GS_PLAY_MAIN_CAM;
             }
@@ -393,7 +396,10 @@ void Game::Render()
             //Draw 3D Game Obejects
             for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
             {
-                (*it)->Draw(m_DD);
+                if ((*it)->visible)
+                {
+                    (*it)->Draw(m_DD);
+                }
             }
 
             // Draw sprite batch stuff 
@@ -417,6 +423,7 @@ void Game::Draw2D(list<GameObject2D*> list_of_GO2D)
 
     m_DD2D->m_Sprites->End();
 }
+
 
 // Helper method to clear the back buffers.
 void Game::Clear()

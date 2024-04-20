@@ -39,6 +39,8 @@ public:
 	bool		IsPhysicsOn() { return m_physicsOn; }
 	float		GetDrag() { return m_drag; }
 
+	bool visible = true;
+
 	//setters
 	void		SetPos(Vector3 _pos) { m_pos = _pos; }
 
