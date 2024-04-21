@@ -109,7 +109,7 @@ void Player::Shoot(Bullet* _bullet)
 	if (!isBulletExist())
 	{
 		bullet.reset(_bullet);
-		bullet->SetVelocity(Vector3(1000.0f, 0.0f, 0.0f), Quaternion(1.0f, -1.0f, 1.0f, 1.0f));
+		bullet->SetVelocity(Vector3(10.0f, 0.0f, 10.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
 	}
 }
 
