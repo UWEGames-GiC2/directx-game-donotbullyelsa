@@ -171,8 +171,8 @@ void Game::Initialize(HWND _window, int _width, int _height)
     
 
     //add Player
-    Player* pPlayer = new Player("table", m_d3dDevice.Get(), m_fxFactory);
-    pPlayer->SetScale(0.1f);
+    Player* pPlayer = new Player("grenadesmoke", m_d3dDevice.Get(), m_fxFactory);
+    pPlayer->SetScale(10.0f);
     //pPlayer->SetRoll(100.0f);
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
