@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CMOGO.h" />
     <ClInclude Include="Collectable.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CMOGO.cpp" />
     <ClCompile Include="Collectable.cpp" />
