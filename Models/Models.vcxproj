@@ -150,7 +150,44 @@
   </ItemGroup>
   <ItemGroup>
     <MeshContentTask Include="Bird\BirdModelV1.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_machinegun.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_machinegunlauncher.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_pistol.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_rocket.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_rocketmodern.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_shotgun.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_sniper.fbx" />
+    <MeshContentTask Include="kenney_weapon\ammo_uzi.fbx" />
+    <MeshContentTask Include="kenney_weapon\flamethrower.fbx" />
+    <MeshContentTask Include="kenney_weapon\flamethrowerhandle.fbx" />
+    <MeshContentTask Include="kenney_weapon\grenade.fbx" />
+    <MeshContentTask Include="kenney_weapon\grenadeflash.fbx" />
     <MeshContentTask Include="kenney_weapon\grenadesmoke.fbx" />
+    <MeshContentTask Include="kenney_weapon\grenade_vintage.fbx" />
+    <MeshContentTask Include="kenney_weapon\kniferound_sharp.fbx" />
+    <MeshContentTask Include="kenney_weapon\kniferound_smooth.fbx" />
+    <MeshContentTask Include="kenney_weapon\knife_sharp.fbx" />
+    <MeshContentTask Include="kenney_weapon\knife_smooth.fbx" />
+    <MeshContentTask Include="kenney_weapon\machinegun.fbx" />
+    <MeshContentTask Include="kenney_weapon\machinegunlauncher.fbx" />
+    <MeshContentTask Include="kenney_weapon\pistol.fbx" />
+    <MeshContentTask Include="kenney_weapon\pistolsilencer.fbx" />
+    <MeshContentTask Include="kenney_weapon\rocketlauncher.fbx" />
+    <MeshContentTask Include="kenney_weapon\rocketlaunchermodern.fbx" />
+    <MeshContentTask Include="kenney_weapon\rocketlaunchermodernrotating.fbx" />
+    <MeshContentTask Include="kenney_weapon\rocketlauncherside.fbx" />
+    <MeshContentTask Include="kenney_weapon\shotgun.fbx" />
+    <MeshContentTask Include="kenney_weapon\shotgunshort.fbx" />
+    <MeshContentTask Include="kenney_weapon\sniper.fbx" />
+    <MeshContentTask Include="kenney_weapon\snipercamo.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzi.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzigold.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzigoldlong.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzigoldlongsilencer.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzigoldsilencer.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzilong.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzilongsilencer.fbx" />
+    <MeshContentTask Include="kenney_weapon\uzisilencer.fbx" />
     <MeshContentTask Include="Table\table.FBX">
       <FileType>Document</FileType>
     </MeshContentTask>
