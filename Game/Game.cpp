@@ -100,9 +100,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
     float AR = (float)_width / (float)_height;
 
     //example basic 3D stuff
-    //Terrain* terrain = new Terrain("ammo_pistol", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
-    //m_GameObjects.push_back(terrain);
-    //m_ColliderObjects.push_back(terrain);
+    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    m_GameObjects.push_back(terrain);
+    m_ColliderObjects.push_back(terrain);
     //m_Collectables.push_back(terrain);
 
     //Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
@@ -174,9 +174,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
     Player* pPlayer = new Player("table", m_d3dDevice.Get(), m_fxFactory);
     pPlayer->SetScale(0.1f);
     pPlayer->SetRoll(100.0f);
-    pPlayer->visible = false;
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
+    player_char.reset(pPlayer);
 
     //add a secondary camera
     m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 0.02f));
@@ -312,6 +312,7 @@ void Game::Update(DX::StepTimer const& _timer)
     //gamestates
     switch (m_GD->m_GS)
     {
+        //menu
         case GameState::GS_MENU:
         {
             //input
@@ -322,12 +323,12 @@ void Game::Update(DX::StepTimer const& _timer)
             break;
         }
 
+        //main game
         default:
         {
 
             //upon space bar switch camera state
             //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
-            //if (m_GD->m_KBS_tracker.pressed.Space)
             if (m_GD->m_KBS_tracker.pressed.G)
             {
                 if (m_GD->m_GS == GS_PLAY_MAIN_CAM)
@@ -338,6 +339,22 @@ void Game::Update(DX::StepTimer const& _timer)
                 {
                     m_GD->m_GS = GS_PLAY_MAIN_CAM;
                 }
+            }
+
+            //player shoot
+            else if (m_GD->m_KBS_tracker.pressed.J)
+            {
+                std::cout << player_char->isBulletExist();
+                if (!player_char->isBulletExist())
+                {
+                    Bullet* m_bullet = new Bullet("table", m_d3dDevice.Get(), m_fxFactory);
+                    m_bullet->SetScale(0.1f);
+                    m_bullet->SetPos(player_char->GetPos());
+                    m_GameObjects.push_back(m_bullet);
+                    m_PhysicsObjects.push_back(m_bullet);
+                    player_char->Shoot(m_bullet);
+                }
+                
             }
 
             //update all objects

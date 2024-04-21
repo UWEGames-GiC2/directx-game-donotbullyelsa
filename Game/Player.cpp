@@ -15,6 +15,8 @@ Player::Player(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF)
 	SetPhysicsOn(true);
 
 	gravity_enabled = true;
+
+	bullet = nullptr;
 }
 
 Player::~Player()
@@ -79,7 +81,7 @@ void Player::Tick(GameData* _GD)
 	}
 
 	//jump
-	if (_GD->m_KBS_tracker.pressed.Space)
+	if (_GD->m_KBS_tracker.pressed.K)
 	{
 		if (grounded)
 		{
@@ -100,4 +102,18 @@ void Player::Tick(GameData* _GD)
 
 	//apply my base behaviour
 	CMOGO::Tick(_GD);
+}
+
+void Player::Shoot(Bullet* _bullet)
+{
+	if (!isBulletExist())
+	{
+		bullet.reset(_bullet);
+		bullet->SetVelocity(Vector3(1000.0f, 0.0f, 0.0f), Quaternion(1.0f, -1.0f, 1.0f, 1.0f));
+	}
+}
+
+bool Player::isBulletExist()
+{
+	return (bullet != nullptr);
 }

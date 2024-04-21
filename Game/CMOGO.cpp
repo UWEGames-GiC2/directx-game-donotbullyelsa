@@ -189,3 +189,4 @@ void CMOGO::stopGravity()
 	m_vel.y = 0;
 	gravity = -GRAVITY_CONST;
 }
+

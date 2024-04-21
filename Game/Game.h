@@ -13,6 +13,7 @@
 #include "Audio.h"
 #include "CMOGO.h"
 #include "Collectable.h"
+#include "Player.h"
 
 using std::list;
 
@@ -124,6 +125,8 @@ private:
 
     void CheckCollision();
     void CheckCollect();
+
+    std::shared_ptr<Player> player_char;
                                          
     //sound stuff
 	//This uses a simple system, but a better pipeline can be used using Wave Banks
