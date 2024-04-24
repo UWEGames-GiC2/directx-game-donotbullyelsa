@@ -140,6 +140,15 @@ void Game::BuildMap()
     m_ColliderObjects.push_back(terrain);
     //m_Collectables.push_back(terrain);
 
+    std::vector<Terrain*> terrain;
+    for (int i = 0; i < 9; i++)
+    {
+        terrain = new Terrain("block", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+        m_GameObjects.push_back(terrain);
+        m_ColliderObjects.push_back(terrain);
+        terrain->SetPos(Vector3(0.0f, 0.0f, 100 * i));
+    }
+
     //Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
     //m_GameObjects.push_back(terrain2);
     //m_ColliderObjects.push_back(terrain2);
