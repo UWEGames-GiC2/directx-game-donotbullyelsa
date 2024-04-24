@@ -15,18 +15,16 @@ Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF)
 void Bullet::SetVelocity(Vector3 v3, Vector3 r3)
 {
 	m_vel = RotateV3(v3, r3);
+	SetYaw(getAngleFromVector(m_vel) - 3.14 / 2);
+	std::cout << '\n' << getAngleFromVector(m_vel) << '\n';
+	std::cout << m_vel.z << '\n';
+	std::cout << m_vel.x << '\n';
 	//m_vel = v3;
 }
 
 Vector3 Bullet::RotateV3(Vector3 v3, Vector3 r3)
 {
-	std::cout << '\n';
-	std::cout << v3.x << ' ' << v3.y << ' ' << v3.z << '\n';
-
 	v3 = Vector3(getMagnitude(v3) * cos(-r3.y + getAngleFromVector(v3)), v3.y, getMagnitude(v3) * sin(-r3.y + getAngleFromVector(v3)));
-
-	std::cout << r3.x << ' ' << r3.y << ' ' << r3.z << '\n';
-	std::cout << v3.x << ' ' << v3.y << ' ' << v3.z << '\n';
 
 	return v3;
 }
@@ -39,5 +37,6 @@ float Bullet::getMagnitude(Vector3 v3)
 //in radian
 float Bullet::getAngleFromVector(Vector3 v3)
 {
-	return atan(v3.z / v3.x);
+	float x = atan(v3.z / v3.x);
+	return x;
 }
