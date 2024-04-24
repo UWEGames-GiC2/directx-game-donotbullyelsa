@@ -135,18 +135,18 @@ void Game::Initialize(HWND _window, int _width, int _height)
 void Game::BuildMap()
 {
     //example basic 3D stuff
-    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
-    m_GameObjects.push_back(terrain);
-    m_ColliderObjects.push_back(terrain);
+    //Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    //m_GameObjects.push_back(terrain);
+    //m_ColliderObjects.push_back(terrain);
     //m_Collectables.push_back(terrain);
 
-    std::vector<Terrain*> terrain;
+    std::vector<Terrain*> terrain_ground;
     for (int i = 0; i < 9; i++)
     {
-        terrain = new Terrain("block", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
-        m_GameObjects.push_back(terrain);
-        m_ColliderObjects.push_back(terrain);
-        terrain->SetPos(Vector3(0.0f, 0.0f, 100 * i));
+        terrain_ground.push_back(new Terrain("block", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One));
+        m_GameObjects.push_back(terrain_ground[i]);
+        m_ColliderObjects.push_back(terrain_ground[i]);
+        terrain_ground[i]->SetPos(Vector3(0.0f, 0.0f, 0 * i));
     }
 
     //Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
@@ -175,7 +175,7 @@ void Game::BuildMap()
     cube->init(11, m_d3dDevice.Get());
     cube->SetPos(Vector3(100.0f, 0.0f, 100.0f));
     cube->SetScale(4.0f);
-    m_GameObjects.push_back(cube);
+    //m_GameObjects.push_back(cube);
 
     /**
     VBSpike* spikes = new VBSpike();
