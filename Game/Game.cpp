@@ -99,6 +99,41 @@ void Game::Initialize(HWND _window, int _width, int _height)
     //find how big my window is to correctly calculate my aspect ratio
     float AR = (float)_width / (float)_height;
 
+    //create a base camera
+    m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
+    m_cam->SetPos(Vector3(0.0f, 200.0f, 200.0f));
+    m_GameObjects.push_back(m_cam);
+
+
+    //add Player
+    Player* pPlayer = new Player("grenadesmoke", m_d3dDevice.Get(), m_fxFactory);
+    pPlayer->SetScale(10.0f);
+    //pPlayer->SetRoll(100.0f);
+    m_GameObjects.push_back(pPlayer);
+    m_PhysicsObjects.push_back(pPlayer);
+    player_char.reset(pPlayer);
+
+    //add a secondary camera
+    m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 0.02f));
+    m_GameObjects.push_back(m_TPScam);
+
+    //create DrawData struct and populate its pointers
+    m_DD = new DrawData;
+    m_DD->m_pd3dImmediateContext = nullptr;
+    m_DD->m_states = m_states;
+    m_DD->m_cam = m_cam;
+    m_DD->m_light = m_light;
+
+    TextGO2D* text = new TextGO2D("DirectX Game");
+    text->SetPos(Vector2(winX / 5, winY / 5));
+    text->SetColour(Color((float*)&Colors::Yellow));
+    m_MenuObjects2D.push_back(text);
+
+    BuildMap();
+}
+
+void Game::BuildMap()
+{
     //example basic 3D stuff
     Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
     m_GameObjects.push_back(terrain);
@@ -125,6 +160,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     Box->SetPos(Vector3(0.0f, 0.0f, -100.0f));
     Box->SetPitch(XM_PIDIV4);
     Box->SetScale(20.0f);
+    **/
 
     VBCube* cube = new VBCube();
     cube->init(11, m_d3dDevice.Get());
@@ -132,6 +168,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     cube->SetScale(4.0f);
     m_GameObjects.push_back(cube);
 
+    /**
     VBSpike* spikes = new VBSpike();
     spikes->init(11, m_d3dDevice.Get());
     spikes->SetPos(Vector3(0.0f, 0.0f, 100.0f));
@@ -163,24 +200,6 @@ void Game::Initialize(HWND _window, int _width, int _height)
     VBMC->SetScale(Vector3(3, 3, 1.5));
     m_GameObjects.push_back(VBMC);
     **/
-
-    //create a base camera
-    m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
-    m_cam->SetPos(Vector3(0.0f, 200.0f, 200.0f));
-    m_GameObjects.push_back(m_cam);
-    
-
-    //add Player
-    Player* pPlayer = new Player("grenadesmoke", m_d3dDevice.Get(), m_fxFactory);
-    pPlayer->SetScale(10.0f);
-    //pPlayer->SetRoll(100.0f);
-    m_GameObjects.push_back(pPlayer);
-    m_PhysicsObjects.push_back(pPlayer);
-    player_char.reset(pPlayer);
-
-    //add a secondary camera
-    m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 0.02f));
-    m_GameObjects.push_back(m_TPScam);
 
     /**
     //test all GPGOs
@@ -235,13 +254,6 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_GameObjects.push_back(pGPGO);
     **/
 
-    //create DrawData struct and populate its pointers
-    m_DD = new DrawData;
-    m_DD->m_pd3dImmediateContext = nullptr;
-    m_DD->m_states = m_states;
-    m_DD->m_cam = m_cam;
-    m_DD->m_light = m_light;
-
     /**
     //example basic 2D stuff
     ImageGO2D* logo = new ImageGO2D("logo_small", m_d3dDevice.Get());
@@ -256,11 +268,6 @@ void Game::Initialize(HWND _window, int _width, int _height)
     text->SetColour(Color((float*)&Colors::Yellow));
     m_MenuObjects2D.push_back(text);
     **/
-
-    TextGO2D* text = new TextGO2D("DirectX Game");
-    text->SetPos(Vector2(winX / 5, winY / 5));
-    text->SetColour(Color((float*)&Colors::Yellow));
-    m_MenuObjects2D.push_back(text);
 
     //Test Sounds
     Loop* loop = new Loop(m_audioEngine.get(), "NightAmbienceSimple_02");
@@ -334,10 +341,18 @@ void Game::Update(DX::StepTimer const& _timer)
                 if (m_GD->m_GS == GS_PLAY_MAIN_CAM)
                 {
                     m_GD->m_GS = GS_PLAY_TPS_CAM;
+                    if (player_char != nullptr)
+                    {
+                        player_char->visible = false;
+                    }
                 }
                 else
                 {
                     m_GD->m_GS = GS_PLAY_MAIN_CAM;
+                    if (player_char != nullptr)
+                    {
+                        player_char->visible = true;
+                    }
                 }
             }
 
@@ -345,10 +360,10 @@ void Game::Update(DX::StepTimer const& _timer)
             else if (m_GD->m_KBS_tracker.pressed.J)
             {
                 std::cout << player_char->isBulletExist();
-                if (!player_char->isBulletExist())
+                //if (!player_char->isBulletExist())
                 {
-                    Bullet* m_bullet = new Bullet("table", m_d3dDevice.Get(), m_fxFactory);
-                    m_bullet->SetScale(0.1f);
+                    Bullet* m_bullet = new Bullet("ammo_pistol", m_d3dDevice.Get(), m_fxFactory);
+                    m_bullet->SetScale(10.0f);
                     m_bullet->SetPos(player_char->GetPos());
                     m_GameObjects.push_back(m_bullet);
                     m_PhysicsObjects.push_back(m_bullet);

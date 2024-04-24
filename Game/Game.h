@@ -64,6 +64,8 @@ private:
     int winX;
     int winY;
 
+    void BuildMap();
+
     void Update(DX::StepTimer const& _timer);
     void Render();
     void AddToDraw();
