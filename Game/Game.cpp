@@ -93,36 +93,36 @@ void Game::Initialize(HWND _window, int _width, int _height)
     //create a set of dummy things to show off the engine
 
     //create a base light
-    m_light = new Light(Vector3(0.0f, 100.0f, 160.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Color(0.4f, 0.1f, 0.1f, 1.0f));
+    m_light = std::make_shared<Light>(Vector3(0.0f, 100.0f, 160.0f), Color(1.0f, 1.0f, 1.0f, 1.0f), Color(0.4f, 0.1f, 0.1f, 1.0f));
     m_GameObjects.push_back(m_light);
 
     //find how big my window is to correctly calculate my aspect ratio
     float AR = (float)_width / (float)_height;
 
     //create a base camera
-    m_cam = new Camera(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
+    m_cam = std::make_shared<Camera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
     m_cam->SetPos(Vector3(0.0f, 200.0f, 200.0f));
     m_GameObjects.push_back(m_cam);
 
 
     //add Player
-    Player* pPlayer = new Player("grenadesmoke", m_d3dDevice.Get(), m_fxFactory);
+    std::shared_ptr <Player> pPlayer = std::make_shared<Player>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
     pPlayer->SetScale(10.0f);
     //pPlayer->SetRoll(100.0f);
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
-    player_char.reset(pPlayer);
+    player_char = pPlayer;
 
     //add a secondary camera
-    m_TPScam = new TPSCamera(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 0.02f));
+    m_TPScam = std::make_shared<TPSCamera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 0.02f));
     m_GameObjects.push_back(m_TPScam);
 
     //create DrawData struct and populate its pointers
     m_DD = new DrawData;
     m_DD->m_pd3dImmediateContext = nullptr;
     m_DD->m_states = m_states;
-    m_DD->m_cam = m_cam;
-    m_DD->m_light = m_light;
+    m_DD->m_cam = m_cam.get();
+    m_DD->m_light = m_light.get();
 
     TextGO2D* text = new TextGO2D("DirectX Game");
     text->SetPos(Vector2(winX / 5, winY / 5));
@@ -135,19 +135,17 @@ void Game::Initialize(HWND _window, int _width, int _height)
 void Game::BuildMap()
 {
     //example basic 3D stuff
-    //Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
     //m_GameObjects.push_back(terrain);
     //m_ColliderObjects.push_back(terrain);
     //m_Collectables.push_back(terrain);
 
-    std::vector<Terrain*> terrain_ground;
-    for (int i = 0; i < 9; i++)
+    //ground
+    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++)
     {
-        terrain_ground.push_back(new Terrain("block", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 1.0f * Vector3::One));
-        //terrain_ground[i]->SetScale(100000.0f);
-        m_GameObjects.push_back(terrain_ground[i]);
-        m_ColliderObjects.push_back(terrain_ground[i]);
-        terrain_ground[i]->SetPos(Vector3(0.0f, 0.0f, 0 * i));
+        std::shared_ptr<Terrain> temp_GO = std::make_shared<Terrain>("block", m_d3dDevice.Get(), m_fxFactory, Vector3(100.0f * j, -200.0f, 100.0f * i), 0.0f, 0.0f, 0.0f, 10.0f * Vector3::One);
+        m_GameObjects.push_back(temp_GO);
+        m_ColliderObjects.push_back(temp_GO);
     }
 
     //Terrain* terrain2 = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(-100.0f, 0.0f, -100.0f), 0.0f, 0.0f, 0.0f, Vector3::One);
@@ -372,7 +370,7 @@ void Game::Update(DX::StepTimer const& _timer)
                 std::cout << player_char->isBulletExist();
                 //if (!player_char->isBulletExist())
                 {
-                    Bullet* m_bullet = new Bullet("ammo_pistol", m_d3dDevice.Get(), m_fxFactory);
+                    std::shared_ptr<Bullet> m_bullet = std::make_shared<Bullet>("ammo_pistol", m_d3dDevice.Get(), m_fxFactory);
                     m_bullet->SetScale(10.0f);
                     m_bullet->SetPos(player_char->GetPos());
                     m_GameObjects.push_back(m_bullet);
@@ -383,7 +381,7 @@ void Game::Update(DX::StepTimer const& _timer)
             }
 
             //update all objects
-            for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
+            for (list<std::shared_ptr<GameObject>>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
             {
                 (*it)->Tick(m_GD);
             }
@@ -413,10 +411,10 @@ void Game::Render()
     m_DD->m_pd3dImmediateContext = m_d3dContext.Get();
 
     //set which camera to be used
-    m_DD->m_cam = m_cam;
+    m_DD->m_cam = m_cam.get();
     if (m_GD->m_GS == GS_PLAY_TPS_CAM)
     {
-        m_DD->m_cam = m_TPScam;
+        m_DD->m_cam = m_TPScam.get();
     }
 
     //update the constant buffer for the rendering of VBGOs
@@ -436,7 +434,7 @@ void Game::Render()
         default:
         {
             //Draw 3D Game Obejects
-            for (list<GameObject*>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
+            for (list <std::shared_ptr<GameObject>> ::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
             {
                 if ((*it)->visible)
                 {
@@ -741,20 +739,24 @@ void Game::ReadInput()
 
 void Game::CheckCollision()
 {
-    for (auto& m_PO: m_PhysicsObjects) for (auto& m_CO: m_ColliderObjects)
+    for (std::shared_ptr<CMOGO> m_PO: m_PhysicsObjects) for (std::shared_ptr<CMOGO> m_CO: m_ColliderObjects)
     {
         if (m_PO->Intersects(*m_CO)) //std::cout << "Collision Detected!" << std::endl;
         {
             XMFLOAT3 eject_vect = Collision::ejectionCMOGO(*m_PO, *m_CO);
             //std::cout << eject_vect.x << std::endl << eject_vect.y << std::endl << eject_vect.z << std::endl;
             auto pos = m_PO->GetPos();
-            m_PO->SetPos(pos - eject_vect);
-
+            //if (eject_vect.y <= -0.5f)
+            {
+                m_PO->SetPos(pos - eject_vect);
+            }
             if (eject_vect.y <= 0.0f)
             {
                 m_PO->grounded = true;
                 m_PO->stopGravity();
             }       
+
+            //std::cout << eject_vect.y << std::endl;
         }
         else
         {
@@ -763,7 +765,12 @@ void Game::CheckCollision()
 
         //record the current position for next frame
         m_PO->last_pos = m_PO->GetPos();
+
     }
+
+
+
+    //std::cout << m_PhysicsObjects[0]->m_vel.y << std::endl;
 }
 
 void Game::CheckCollect()

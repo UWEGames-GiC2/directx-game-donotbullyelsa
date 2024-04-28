@@ -57,7 +57,7 @@ public:
 	void		TogglePhysics() { m_physicsOn = !m_physicsOn; }
 	void		SetDrag(float _drag) { m_drag = _drag; }
 
-protected:
+//protected:
 
 	//World transform/matrix of this GO and it components
 	Matrix m_worldMat;

@@ -102,13 +102,15 @@ void Player::Tick(GameData* _GD)
 
 	//apply my base behaviour
 	CMOGO::Tick(_GD);
+
+
 }
 
-void Player::Shoot(Bullet* _bullet)
+void Player::Shoot(std::shared_ptr<Bullet> _bullet)
 {
 	if (!isBulletExist())
 	{
-		bullet.reset(_bullet);
+		bullet = _bullet;
 		bullet->SetVelocity(Vector3(0.0f, 0.0f, -100.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
 	}
 }
