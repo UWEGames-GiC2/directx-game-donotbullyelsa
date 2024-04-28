@@ -99,12 +99,6 @@ void Game::Initialize(HWND _window, int _width, int _height)
     //find how big my window is to correctly calculate my aspect ratio
     float AR = (float)_width / (float)_height;
 
-    //create a base camera
-    m_cam = std::make_shared<Camera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
-    m_cam->SetPos(Vector3(0.0f, 200.0f, 200.0f));
-    m_GameObjects.push_back(m_cam);
-
-
     //add Player
     std::shared_ptr <Player> pPlayer = std::make_shared<Player>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
     pPlayer->SetScale(10.0f);
@@ -112,6 +106,12 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
     player_char = pPlayer;
+
+    //create a base camera
+    m_cam = std::make_shared<TPSCamera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 200.0f));
+    //m_cam = std::make_shared<Camera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
+    //m_cam->SetPos(Vector3(0.0f, 200.0f, 200.0f));
+    m_GameObjects.push_back(m_cam);
 
     //add a secondary camera
     m_TPScam = std::make_shared<TPSCamera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 0.02f));
@@ -141,9 +141,9 @@ void Game::BuildMap()
     //m_Collectables.push_back(terrain);
 
     //ground
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++)
+    for (int i = 0; i < 7; i++) for (int j = 0; j < 7; j++)
     {
-        std::shared_ptr<Terrain> temp_GO = std::make_shared<Terrain>("block", m_d3dDevice.Get(), m_fxFactory, Vector3(100.0f * j, -200.0f, 100.0f * i), 0.0f, 0.0f, 0.0f, 10.0f * Vector3::One);
+        std::shared_ptr<Terrain> temp_GO = std::make_shared<Terrain>("block", m_d3dDevice.Get(), m_fxFactory, Vector3(100.0f * (j - 3), -200.0f, 100.0f * (i - 3)), 0.0f, 0.0f, 0.0f, 10.0f * Vector3::One);
         m_GameObjects.push_back(temp_GO);
         m_ColliderObjects.push_back(temp_GO);
     }

@@ -36,7 +36,7 @@ void Player::Tick(GameData* _GD)
 			float speed = 10.0f;
 			m_acc.x += speed * _GD->m_MS.x;
 			m_acc.z += speed * _GD->m_MS.y;
-			break;
+			//break;
 		}
 	}
 	case GS_PLAY_TPS_CAM:

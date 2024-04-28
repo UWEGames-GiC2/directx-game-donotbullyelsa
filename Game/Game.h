@@ -100,7 +100,7 @@ private:
     DrawData2D* m_DD2D = NULL;	    //Data to be passed by game to all 2D Game Objects via Draw 
 
     //Basic 3D renderers
-    std::shared_ptr <Camera> m_cam = NULL; //principle camera
+    std::shared_ptr <TPSCamera> m_cam = NULL; //principle camera
     std::shared_ptr <TPSCamera> m_TPScam = NULL;//TPS cam
     std::shared_ptr <Light> m_light = NULL; //base light
 
