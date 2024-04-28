@@ -143,7 +143,8 @@ void Game::BuildMap()
     std::vector<Terrain*> terrain_ground;
     for (int i = 0; i < 9; i++)
     {
-        terrain_ground.push_back(new Terrain("block", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One));
+        terrain_ground.push_back(new Terrain("block", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 1.0f * Vector3::One));
+        //terrain_ground[i]->SetScale(100000.0f);
         m_GameObjects.push_back(terrain_ground[i]);
         m_ColliderObjects.push_back(terrain_ground[i]);
         terrain_ground[i]->SetPos(Vector3(0.0f, 0.0f, 0 * i));
