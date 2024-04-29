@@ -17,10 +17,9 @@ public:
 	virtual void Tick(GameData* _GD) override;
 
 	void Shoot(std::shared_ptr<Bullet> _bullet);
-	bool isBulletExist();
+	std::vector<std::shared_ptr<Bullet>> bullet;
 
 protected:
-	std::shared_ptr<Bullet> bullet = nullptr;
 };
 
 #endif

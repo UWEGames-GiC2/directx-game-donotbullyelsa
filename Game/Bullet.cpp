@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Bullet.h"
-#include "math.h"
+#include <cmath>
 #include <string>
 #include <iostream>
 
@@ -9,16 +9,17 @@ Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF)
 	SetDrag(0.7);
 	SetPhysicsOn(true);
 
-	gravity_enabled = true;
+	gravity_enabled = false;
 }
 
 void Bullet::SetVelocity(Vector3 v3, Vector3 r3)
 {
-	m_vel = RotateV3(v3, r3);
-	SetYaw(getAngleFromVector(m_vel) - 3.14 / 2);
+	SetYaw(r3.y);
+	//SetYaw(getAngleFromVector(m_vel) - 3.14 / 2);
 	//std::cout << '\n' << getAngleFromVector(m_vel) << '\n';
 	//std::cout << m_vel.z << '\n';
 	//std::cout << m_vel.x << '\n';
+	m_vel = RotateV3(v3, r3);
 }
 
 Vector3 Bullet::RotateV3(Vector3 v3, Vector3 r3)

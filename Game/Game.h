@@ -15,6 +15,7 @@
 #include "Collectable.h"
 #include "Player.h"
 #include "Targets.h"
+#include "TextGO2D.h"
 
 using std::list;
 
@@ -115,22 +116,19 @@ private:
     std::unique_ptr<DirectX::Mouse> m_mouse;
 
     list<std::shared_ptr<GameObject>> m_GameObjects; //data structure to hold pointers to the 3D Game Objects
-    list<GameObject2D*> m_GameObjects2D; //data structure to hold pointers to the 2D Game Objects 
-    list<GameObject2D*> m_MenuObjects2D; 
-    void Draw2D(list<GameObject2D*> list_of_GO2D);
-
-    //list<CMOGO*> m_CMOGameObjects; //data structure to hold pointers to all 3D CMO Game Objects
-    //list<CMOGO*> m_PhysicsObjects
+    list<std::shared_ptr<GameObject2D>> m_GameObjects2D; //data structure to hold pointers to the 2D Game Objects 
+    list<std::shared_ptr<GameObject2D>> m_MenuObjects2D;
+    void Draw2D(list<std::shared_ptr<GameObject2D>> list_of_GO2D);
 
     std::vector<std::shared_ptr<CMOGO>> m_ColliderObjects;
     std::vector<std::shared_ptr<CMOGO>> m_PhysicsObjects;
-    std::vector<std::shared_ptr<Collectable>> m_Collectables;
 
     void DoPhysics();
     void CheckCollision();
-    void CheckCollect();
+    void CollisionHandling(std::shared_ptr<CMOGO> _PO, std::shared_ptr<CMOGO> _CO);
 
     std::shared_ptr<Player> pPlayer;
+    std::shared_ptr<TextGO2D> score_text;
     std::vector<std::shared_ptr<Targets>> m_targets;
     void EnemySpawn();
     float enemy_spawn_clock = 0.0f;

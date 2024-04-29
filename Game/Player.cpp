@@ -15,8 +15,6 @@ Player::Player(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF)
 	SetPhysicsOn(true);
 
 	gravity_enabled = true;
-
-	bullet = nullptr;
 }
 
 Player::~Player()
@@ -43,7 +41,7 @@ void Player::Tick(GameData* _GD)
 	case GS_PLAY_TPS_CAM:
 	{
 		//TURN AND FORWARD CONTROL HERE
-		Vector3 forwardMove = 40.0f * Vector3::Forward;
+		Vector3 forwardMove = 200.0f * Vector3::Forward;
 		Matrix rotMove = Matrix::CreateRotationY(m_yaw);
 		forwardMove = Vector3::Transform(forwardMove, rotMove);
 		if (_GD->m_KBS.W)
@@ -109,14 +107,6 @@ void Player::Tick(GameData* _GD)
 
 void Player::Shoot(std::shared_ptr<Bullet> _bullet)
 {
-	if (!isBulletExist())
-	{
-		bullet = _bullet;
-		bullet->SetVelocity(Vector3(0.0f, 0.0f, -100.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
-	}
-}
-
-bool Player::isBulletExist()
-{
-	return (bullet != nullptr);
+	bullet.push_back(_bullet);
+	bullet[bullet.size() - 1]->SetVelocity(Vector3(0.0f, 0.0f, -200.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
 }

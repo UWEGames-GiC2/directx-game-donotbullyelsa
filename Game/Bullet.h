@@ -1,6 +1,11 @@
 #include "CMOGO.h"
 
 #pragma once
+namespace MathConst
+{
+	const double pi = 3.14159265358979323846;
+}
+
 class Bullet: public CMOGO
 {
 public:
