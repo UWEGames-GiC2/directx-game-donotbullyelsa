@@ -16,10 +16,9 @@ void Bullet::SetVelocity(Vector3 v3, Vector3 r3)
 {
 	m_vel = RotateV3(v3, r3);
 	SetYaw(getAngleFromVector(m_vel) - 3.14 / 2);
-	std::cout << '\n' << getAngleFromVector(m_vel) << '\n';
-	std::cout << m_vel.z << '\n';
-	std::cout << m_vel.x << '\n';
-	//m_vel = v3;
+	//std::cout << '\n' << getAngleFromVector(m_vel) << '\n';
+	//std::cout << m_vel.z << '\n';
+	//std::cout << m_vel.x << '\n';
 }
 
 Vector3 Bullet::RotateV3(Vector3 v3, Vector3 r3)

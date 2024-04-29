@@ -30,6 +30,7 @@ void Player::Tick(GameData* _GD)
 	switch (_GD->m_GS)
 	{
 	case GS_PLAY_MAIN_CAM:
+		/**
 	{
 		{
 			//MOUSE CONTROL SCHEME HERE
@@ -38,7 +39,7 @@ void Player::Tick(GameData* _GD)
 			m_acc.z += speed * _GD->m_MS.y;
 			//break;
 		}
-	}
+	} **/
 	case GS_PLAY_TPS_CAM:
 	{
 		//TURN AND FORWARD CONTROL HERE
@@ -103,7 +104,7 @@ void Player::Tick(GameData* _GD)
 	//apply my base behaviour
 	CMOGO::Tick(_GD);
 
-
+	//std::cout << m_vel.x << '\n' << m_vel.z << '\n';
 }
 
 void Player::Shoot(std::shared_ptr<Bullet> _bullet)

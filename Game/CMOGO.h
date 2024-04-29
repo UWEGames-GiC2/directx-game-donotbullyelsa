@@ -25,7 +25,6 @@ public:
 
 	virtual bool Intersects(const CMOGO& other) const;
 	bool grounded = false;
-	void stopGravity();
 	Vector3 last_pos = { 0.0f, 0.0f, 0.0f };
 
 	BoundingOrientedBox&		getCollider()		noexcept { return m_collider; }
@@ -33,6 +32,9 @@ public:
 
 	const float GRAVITY_CONST = 2.0f;
 	float gravity = 0.0f;
+	bool isGravityEnabled() { return gravity_enabled; }
+	void updateGravity();
+	void stopGravity();
 
 protected:
 	unique_ptr<Model>  m_model;
@@ -43,7 +45,6 @@ protected:
 	static int m_count;
 
 	bool gravity_enabled = false;
-
 	
 };
 

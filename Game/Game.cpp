@@ -100,15 +100,14 @@ void Game::Initialize(HWND _window, int _width, int _height)
     float AR = (float)_width / (float)_height;
 
     //add Player
-    std::shared_ptr <Player> pPlayer = std::make_shared<Player>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
+    pPlayer = std::make_shared<Player>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
     pPlayer->SetScale(10.0f);
     //pPlayer->SetRoll(100.0f);
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
-    player_char = pPlayer;
 
     //create a base camera
-    m_cam = std::make_shared<TPSCamera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 0.0f, 200.0f));
+    m_cam = std::make_shared<TPSCamera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, pPlayer, Vector3::UnitY, Vector3(0.0f, 200.0f, 200.0f));
     //m_cam = std::make_shared<Camera>(0.25f * XM_PI, AR, 1.0f, 10000.0f, Vector3::UnitY, Vector3::Zero);
     //m_cam->SetPos(Vector3(0.0f, 200.0f, 200.0f));
     m_GameObjects.push_back(m_cam);
@@ -135,7 +134,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
 void Game::BuildMap()
 {
     //example basic 3D stuff
-    Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
+    //Terrain* terrain = new Terrain("table", m_d3dDevice.Get(), m_fxFactory, Vector3(0.0f, -200.0f, 0.0f), 0.0f, 0.0f, 0.0f, 0.25f * Vector3::One);
     //m_GameObjects.push_back(terrain);
     //m_ColliderObjects.push_back(terrain);
     //m_Collectables.push_back(terrain);
@@ -341,6 +340,8 @@ void Game::Update(DX::StepTimer const& _timer)
         //main game
         default:
         {
+            enemy_spawn_clock += elapsedTime;
+            EnemySpawn();
 
             //upon space bar switch camera state
             //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
@@ -349,17 +350,17 @@ void Game::Update(DX::StepTimer const& _timer)
                 if (m_GD->m_GS == GS_PLAY_MAIN_CAM)
                 {
                     m_GD->m_GS = GS_PLAY_TPS_CAM;
-                    if (player_char != nullptr)
+                    if (pPlayer != nullptr)
                     {
-                        player_char->visible = false;
+                        pPlayer->visible = false;
                     }
                 }
                 else
                 {
                     m_GD->m_GS = GS_PLAY_MAIN_CAM;
-                    if (player_char != nullptr)
+                    if (pPlayer != nullptr)
                     {
-                        player_char->visible = true;
+                        pPlayer->visible = true;
                     }
                 }
             }
@@ -367,15 +368,15 @@ void Game::Update(DX::StepTimer const& _timer)
             //player shoot
             else if (m_GD->m_KBS_tracker.pressed.J)
             {
-                std::cout << player_char->isBulletExist();
-                //if (!player_char->isBulletExist())
+                //std::cout << pPlayer->isBulletExist();
+                //if (!pPlayer->isBulletExist())
                 {
                     std::shared_ptr<Bullet> m_bullet = std::make_shared<Bullet>("ammo_pistol", m_d3dDevice.Get(), m_fxFactory);
                     m_bullet->SetScale(10.0f);
-                    m_bullet->SetPos(player_char->GetPos());
+                    m_bullet->SetPos(pPlayer->GetPos());
                     m_GameObjects.push_back(m_bullet);
                     m_PhysicsObjects.push_back(m_bullet);
-                    player_char->Shoot(m_bullet);
+                    pPlayer->Shoot(m_bullet);
                 }
                 
             }
@@ -389,9 +390,29 @@ void Game::Update(DX::StepTimer const& _timer)
             {
                 (*it)->Tick(m_GD);
             }
+            for (std::vector<std::shared_ptr<Targets>>::iterator it = m_targets.begin(); it != m_targets.end(); it++)
+            {
+                (*it)->Tick(m_GD, Vector2(pPlayer->GetPos().x, pPlayer->GetPos().z));
+            }
 
-            CheckCollision();
-            CheckCollect();
+            DoPhysics();
+        }
+    }
+}
+
+// also check if needs to spawn
+void Game::EnemySpawn()
+{
+    if (enemy_spawn_clock >= 1.0f)
+    {
+        enemy_spawn_clock -= ENEMY_SPAWN_TIME;
+        if (m_targets.size() == 0)
+        {
+            std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
+            m_targets.push_back(temp_target);
+            temp_target->SetScale(10.0f);
+            m_GameObjects.push_back(temp_target);
+            m_PhysicsObjects.push_back(temp_target);
         }
     }
 }
@@ -737,6 +758,13 @@ void Game::ReadInput()
     SetCursorPos((window.left + window.right) >> 1, (window.bottom + window.top) >> 1);
 }
 
+void Game::DoPhysics()
+{
+
+    CheckCollision();
+    CheckCollect();
+}
+
 void Game::CheckCollision()
 {
     for (std::shared_ptr<CMOGO> m_PO: m_PhysicsObjects) for (std::shared_ptr<CMOGO> m_CO: m_ColliderObjects)
@@ -768,9 +796,24 @@ void Game::CheckCollision()
 
     }
 
+    //world boundary
+    if (pPlayer->GetPos().z > 350)
+    {
+        pPlayer->SetPosZ(350.0f);
+    }
+    else if (pPlayer->GetPos().z < -350)
+    {
+        pPlayer->SetPosZ(-350.0f);
+    }
 
-
-    //std::cout << m_PhysicsObjects[0]->m_vel.y << std::endl;
+    if (pPlayer->GetPos().x > 350)
+    {
+        pPlayer->SetPosX(350.0f);
+    }
+    else if (pPlayer->GetPos().x < -350)
+    {
+        pPlayer->SetPosX(-350.0f);
+    }
 }
 
 void Game::CheckCollect()

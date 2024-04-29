@@ -14,6 +14,7 @@
 #include "CMOGO.h"
 #include "Collectable.h"
 #include "Player.h"
+#include "Targets.h"
 
 using std::list;
 
@@ -125,10 +126,15 @@ private:
     std::vector<std::shared_ptr<CMOGO>> m_PhysicsObjects;
     std::vector<std::shared_ptr<Collectable>> m_Collectables;
 
+    void DoPhysics();
     void CheckCollision();
     void CheckCollect();
 
-    std::shared_ptr<Player> player_char;
+    std::shared_ptr<Player> pPlayer;
+    std::vector<std::shared_ptr<Targets>> m_targets;
+    void EnemySpawn();
+    float enemy_spawn_clock = 0.0f;
+    const float ENEMY_SPAWN_TIME = 1.0f;
                                          
     //sound stuff
 	//This uses a simple system, but a better pipeline can be used using Wave Banks

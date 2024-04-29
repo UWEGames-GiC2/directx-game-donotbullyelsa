@@ -43,6 +43,9 @@ public:
 
 	//setters
 	void		SetPos(Vector3 _pos) { m_pos = _pos; }
+	void		SetPosX(float _x) { m_pos = Vector3(_x, m_pos.y, m_pos.z); }
+	void		SetPosY(float _y) { m_pos = Vector3(m_pos.x, _y, m_pos.z); }
+	void		SetPosZ(float _z) { m_pos = Vector3(m_pos.x, m_pos.y, _z); }
 
 	void		SetScale(float _scale) { m_scale = _scale * Vector3::One; }
 	void		SetScale(float _x, float _y, float _z) { m_scale = Vector3(_x, _y, _z); }
