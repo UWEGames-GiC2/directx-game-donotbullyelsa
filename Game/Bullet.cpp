@@ -6,15 +6,21 @@
 
 Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF): CMOGO(_fileName, _pd3dDevice, _EF), DAMAGE(10)
 {
-	SetDrag(0.7);
-	SetPhysicsOn(true);
-
-	gravity_enabled = false;
+	init();
 }
 
 Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF, float damage): CMOGO(_fileName, _pd3dDevice, _EF), DAMAGE(damage)
 {
-	Bullet(_fileName, _pd3dDevice, _EF);
+	init();
+}
+
+void Bullet::init()
+{
+
+	SetDrag(0.7);
+	SetPhysicsOn(true);
+
+	gravity_enabled = false;
 }
 
 void Bullet::Tick(GameData* _GD)

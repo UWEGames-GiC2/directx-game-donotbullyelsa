@@ -1,10 +1,6 @@
 #include "CMOGO.h"
 
 #pragma once
-namespace MathConst
-{
-	const double pi = 3.14159265358979323846;
-}
 
 class Bullet: public CMOGO
 {
@@ -17,6 +13,8 @@ public:
 	const float DAMAGE;
 
 private:
+	void init();
+
 	Vector3 RotateV3(Vector3 v3, Vector3 r3);
 	Vector3 velocity;
 	float getMagnitude(Vector3 v3);

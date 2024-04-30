@@ -132,8 +132,8 @@ private:
 
     std::shared_ptr<Player> pPlayer;
     std::shared_ptr<TextGO2D> score_text;
-    std::vector<std::shared_ptr<Targets>> m_targets;
-    void EnemySpawn();
+    std::vector<std::shared_ptr<Targets>> m_targets; //vector created for future development
+    void EnemySpawn(int _health, float _speed);
     float enemy_spawn_clock = 0.0f;
     const float ENEMY_SPAWN_TIME = 1.0f;
                                          

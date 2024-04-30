@@ -102,6 +102,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     //add Player
     pPlayer = std::make_shared<Player>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
     pPlayer->SetScale(10.0f);
+    pPlayer->SetPos(Vector3(rand() % int(MAP_SIZE.x) - 350.0f, -100.0f, rand() % int(MAP_SIZE.y) - 350.0f));
     //pPlayer->SetRoll(100.0f);
     m_GameObjects.push_back(pPlayer);
     m_PhysicsObjects.push_back(pPlayer);
@@ -227,12 +228,14 @@ void Game::Update(DX::StepTimer const& _timer)
         //win state
         case GameState::GS_WON:
         {
+            std::cout << "winner ";
             break;
         }
 
         //lose state
         case GameState::GS_LOST:
         {
+            std::cout << "loser ";
             break;
         }
 
@@ -240,7 +243,7 @@ void Game::Update(DX::StepTimer const& _timer)
         default:
         {
             enemy_spawn_clock += elapsedTime;
-            EnemySpawn();
+            EnemySpawn(100, 60.0f);
 
             //upon space bar switch camera state
             //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
@@ -304,7 +307,7 @@ void Game::Update(DX::StepTimer const& _timer)
 }
 
 // also check if needs to spawn
-void Game::EnemySpawn()
+void Game::EnemySpawn(int _health, float _speed)
 {
     if (enemy_spawn_clock >= 1.0f)
     {
@@ -312,7 +315,8 @@ void Game::EnemySpawn()
         if (m_targets.size() == 0)
         {
             //make a seperated collision layer for enemies
-            std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
+            std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory, _speed);
+            temp_target->health = _health;
             m_targets.push_back(temp_target);
             temp_target->SetScale(10.0f);
             m_GameObjects.push_back(temp_target);
@@ -727,7 +731,7 @@ void Game::CheckCollision()
         //if collide, player lose
         if (pPlayer->Intersects(*temp_target))
         {
-            //m_GD->m_GS = GS_LOST;
+            m_GD->m_GS = GS_LOST;
         }
 
         //dealing with bullet / enemy collision

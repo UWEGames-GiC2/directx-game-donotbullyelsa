@@ -14,6 +14,11 @@ using namespace DirectX;
 
 struct GameData;
 
+namespace MathConst
+{
+	const double pi = 3.14159265358979323846;
+}
+
 class CMOGO : public GameObject
 {
 public:
