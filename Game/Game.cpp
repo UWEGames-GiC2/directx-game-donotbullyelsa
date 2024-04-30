@@ -721,6 +721,16 @@ void Game::CheckCollision()
             m_GD->m_GS = GS_LOST;
         }
 
+        //dealing with bullet / enemy collision
+        for (std::shared_ptr<Bullet> temp_bullet : pPlayer->bullet)
+        {
+            //if collide, player lose
+            if (temp_bullet->Intersects(*temp_target))
+            {
+                m_GD->m_GS = GS_WON;
+            }
+        }
+
         CollisionHandling(pPlayer, temp_target);
         for (std::shared_ptr<CMOGO> m_CO : m_ColliderObjects)
         {
