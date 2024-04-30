@@ -314,12 +314,21 @@ void Game::EnemySpawn(int _health, float _speed)
         enemy_spawn_clock -= ENEMY_SPAWN_TIME;
         if (m_targets.size() == 0)
         {
-            //make a seperated collision layer for enemies
-            std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory, _speed);
-            temp_target->health = _health;
-            m_targets.push_back(temp_target);
-            temp_target->SetScale(10.0f);
-            m_GameObjects.push_back(temp_target);
+            difficulty++;
+            if (difficulty > 5)
+            {
+                m_GD->m_GS = GS_WON;
+            }
+
+            else
+            {
+                //make a seperated collision layer for enemies
+                std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory, _speed);
+                temp_target->health = _health;
+                m_targets.push_back(temp_target);
+                temp_target->SetScale(10.0f);
+                m_GameObjects.push_back(temp_target);
+            }
         }
     }
 }
@@ -725,50 +734,78 @@ void Game::CheckCollision()
         CollisionHandling(m_PO.lock(), m_CO);
     }
 
+    int j = 0;
     //dealing with player / enemy collision
-    for (std::shared_ptr<Targets> temp_target : m_targets)
+    for (std::weak_ptr<Targets> temp_target : m_targets)
     {
-        //if collide, player lose
-        if (pPlayer->Intersects(*temp_target))
-        {
-            m_GD->m_GS = GS_LOST;
-        }
-
-        //dealing with bullet / enemy collision
-        for (auto it = pPlayer->bullet.begin(); it != pPlayer->bullet.end(); it++) 
+        if (m_targets[j] != nullptr)
         {
             //if collide, player lose
-            if ((*it)->Intersects(*temp_target))
+            if (pPlayer->Intersects(*temp_target.lock()))
             {
-                temp_target->health -= (*it)->DAMAGE;
-                it->reset();
+                m_GD->m_GS = GS_LOST;
+            }
 
-                if (temp_target->health <= 0)
+            bool kill_flag = false;
+            //dealing with bullet / enemy collision
+            for (auto it = pPlayer->bullet.begin(); it != pPlayer->bullet.end(); it++)
+            {
+                if ((*it)->Intersects(*temp_target.lock()))
                 {
-                    m_GD->m_GS = GS_WON;
+                    temp_target.lock()->health -= (*it)->DAMAGE;
+                    it->reset();
+
+                    if (temp_target.lock()->health <= 0)
+                    {
+                        kill_flag = true;
+                    }
+                }
+            }
+
+            int i = 0;
+            while (pPlayer->bullet.size() > i)
+            {
+                std::shared_ptr<Bullet> it = pPlayer->bullet[i];
+                if (it == nullptr)
+                {
+                    pPlayer->bullet.erase(pPlayer->bullet.begin() + i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+
+            if (kill_flag)
+            {
+                m_targets[j].reset();
+            }
+
+            else
+            {
+                CollisionHandling(pPlayer, temp_target.lock());
+                for (std::shared_ptr<CMOGO> m_CO : m_ColliderObjects)
+                {
+                    CollisionHandling(temp_target.lock(), m_CO);
                 }
             }
         }
 
+        j++;
+    }
 
-        int i = 0;
-        while (pPlayer->bullet.size() > i)
+    int i = 0;
+    while (m_targets.size() > i)
+    {
+        std::shared_ptr<Targets> it = m_targets[i];
+        if (it == nullptr)
         {
-            std::shared_ptr<Bullet> it = pPlayer->bullet[i];
-            if (it == nullptr)
-            {
-                pPlayer->bullet.erase(pPlayer->bullet.begin() + i);
-            }
-            else
-            {
-                i++;
-            }
+            m_targets.erase(m_targets.begin() + i);
         }
-
-        CollisionHandling(pPlayer, temp_target);
-        for (std::shared_ptr<CMOGO> m_CO : m_ColliderObjects)
+        else
         {
-            CollisionHandling(temp_target, m_CO);
+            i++;
         }
     }
 
