@@ -4,12 +4,17 @@
 #include <string>
 #include <iostream>
 
-Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF): CMOGO(_fileName, _pd3dDevice, _EF)
+Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF): CMOGO(_fileName, _pd3dDevice, _EF), DAMAGE(10)
 {
 	SetDrag(0.7);
 	SetPhysicsOn(true);
 
 	gravity_enabled = false;
+}
+
+Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF, float damage): CMOGO(_fileName, _pd3dDevice, _EF), DAMAGE(damage)
+{
+	Bullet(_fileName, _pd3dDevice, _EF);
 }
 
 void Bullet::Tick(GameData* _GD)

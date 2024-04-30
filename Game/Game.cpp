@@ -281,9 +281,10 @@ void Game::Update(DX::StepTimer const& _timer)
             }
 
             //update all objects
-            for (list<std::shared_ptr<GameObject>>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
+            for (list<std::weak_ptr<GameObject>>::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
             {
-                (*it)->Tick(m_GD);
+                if ((*it).lock() != nullptr)
+                (*it).lock()->Tick(m_GD);
             }
             for (list<std::shared_ptr<GameObject2D>>::iterator it = m_GameObjects2D.begin(); it != m_GameObjects2D.end(); it++)
             {
@@ -367,11 +368,14 @@ void Game::Render()
         default:
         {
             //Draw 3D Game Obejects
-            for (list <std::shared_ptr<GameObject>> ::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
+            for (list <std::weak_ptr<GameObject>> ::iterator it = m_GameObjects.begin(); it != m_GameObjects.end(); it++)
             {
-                if ((*it)->visible)
+                if ((*it).lock() != nullptr)
                 {
-                    (*it)->Draw(m_DD);
+                    if ((*it).lock()->visible)
+                    {
+                        (*it).lock()->Draw(m_DD);
+                    }
                 }
             }
 
@@ -678,38 +682,43 @@ void Game::DoPhysics()
 
 void Game::CollisionHandling(std::shared_ptr<CMOGO> _PO, std::shared_ptr<CMOGO> _CO)
 {
-    if (_PO->Intersects(*_CO))
+    
+    if (_PO != nullptr)
     {
-        XMFLOAT3 eject_vect = Collision::ejectionCMOGO(*_PO, *_CO);
-        //std::cout << eject_vect.x << std::endl << eject_vect.y << std::endl << eject_vect.z << std::endl;
-        auto pos = _PO->GetPos();
+        if (_PO->Intersects(*_CO))
         {
-            _PO->SetPos(pos - eject_vect);
+            XMFLOAT3 eject_vect = Collision::ejectionCMOGO(*_PO, *_CO);
+            //std::cout << eject_vect.x << std::endl << eject_vect.y << std::endl << eject_vect.z << std::endl;
+            auto pos = _PO->GetPos();
+            {
+                _PO->SetPos(pos - eject_vect);
+            }
+            if (eject_vect.y <= 0.0f)
+            {
+                _PO->grounded = true;
+                _PO->stopGravity();
+            }
+
+            //std::cout << eject_vect.y << std::endl;
         }
-        if (eject_vect.y <= 0.0f)
+
+        else
         {
-            _PO->grounded = true;
-            _PO->stopGravity();
+            _PO->grounded = false;
         }
 
-        //std::cout << eject_vect.y << std::endl;
-    }
+        //record the current position for next frame
+        _PO->last_pos = _PO->GetPos();
 
-    else
-    {
-        _PO->grounded = false;
     }
-
-    //record the current position for next frame
-    _PO->last_pos = _PO->GetPos();
 }
 
 void Game::CheckCollision()
 {
 
-    for (std::shared_ptr<CMOGO> m_PO: m_PhysicsObjects) for (std::shared_ptr<CMOGO> m_CO: m_ColliderObjects)
+    for (std::weak_ptr<CMOGO> m_PO: m_PhysicsObjects) for (std::shared_ptr<CMOGO> m_CO: m_ColliderObjects)
     {
-        CollisionHandling(m_PO, m_CO);
+        CollisionHandling(m_PO.lock(), m_CO);
     }
 
     //dealing with player / enemy collision
@@ -718,16 +727,37 @@ void Game::CheckCollision()
         //if collide, player lose
         if (pPlayer->Intersects(*temp_target))
         {
-            m_GD->m_GS = GS_LOST;
+            //m_GD->m_GS = GS_LOST;
         }
 
         //dealing with bullet / enemy collision
-        for (std::shared_ptr<Bullet> temp_bullet : pPlayer->bullet)
+        for (auto it = pPlayer->bullet.begin(); it != pPlayer->bullet.end(); it++) 
         {
             //if collide, player lose
-            if (temp_bullet->Intersects(*temp_target))
+            if ((*it)->Intersects(*temp_target))
             {
-                m_GD->m_GS = GS_WON;
+                temp_target->health -= (*it)->DAMAGE;
+                it->reset();
+
+                if (temp_target->health <= 0)
+                {
+                    m_GD->m_GS = GS_WON;
+                }
+            }
+        }
+
+
+        int i = 0;
+        while (pPlayer->bullet.size() > i)
+        {
+            std::shared_ptr<Bullet> it = pPlayer->bullet[i];
+            if (it == nullptr)
+            {
+                pPlayer->bullet.erase(pPlayer->bullet.begin() + i);
+            }
+            else
+            {
+                i++;
             }
         }
 
