@@ -135,6 +135,16 @@ void Game::Initialize(HWND _window, int _width, int _height)
     BuildMap();
 }
 
+void Game::SpawnRandomObject(string _s)
+{
+    //make a seperate collision layer for this
+    int x = rand() % int(MAP_SIZE.x);
+    int z = rand() % int(MAP_SIZE.y);
+    std::shared_ptr<Terrain> temp_GO = std::make_shared<Terrain>(_s, m_d3dDevice.Get(), m_fxFactory, Vector3(x - 350.0f, -100.0f, z - 350.0f), rand() % 360, rand() % 360, rand() % 360, 20.0f * Vector3::One);
+    m_GameObjects.push_back(temp_GO);
+    m_random_obj.push_back(temp_GO);
+}
+
 void Game::BuildMap()
 {
     //ground
@@ -143,7 +153,15 @@ void Game::BuildMap()
         std::shared_ptr<Terrain> temp_GO = std::make_shared<Terrain>("block", m_d3dDevice.Get(), m_fxFactory, Vector3(100.0f * (j - 3), -200.0f, 100.0f * (i - 3)), 0.0f, 0.0f, 0.0f, 10.0f * Vector3::One);
         m_GameObjects.push_back(temp_GO);
         m_ColliderObjects.push_back(temp_GO);
+
     }
+
+    SpawnRandomObject("pistol");
+    SpawnRandomObject("uzi");
+    SpawnRandomObject("sniper");
+    SpawnRandomObject("shotgun");
+    SpawnRandomObject("knife_sharp");
+    SpawnRandomObject("grenade");
 
     //Test Sounds
     Loop* loop = new Loop(m_audioEngine.get(), "NightAmbienceSimple_02");
@@ -203,6 +221,18 @@ void Game::Update(DX::StepTimer const& _timer)
             {
                 m_GD->m_GS = GameState::GS_PLAY_MAIN_CAM;
             }
+            break;
+        }
+
+        //win state
+        case GameState::GS_WON:
+        {
+            break;
+        }
+
+        //lose state
+        case GameState::GS_LOST:
+        {
             break;
         }
 
@@ -280,11 +310,11 @@ void Game::EnemySpawn()
         enemy_spawn_clock -= ENEMY_SPAWN_TIME;
         if (m_targets.size() == 0)
         {
+            //make a seperated collision layer for enemies
             std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory);
             m_targets.push_back(temp_target);
             temp_target->SetScale(10.0f);
             m_GameObjects.push_back(temp_target);
-            m_PhysicsObjects.push_back(temp_target);
         }
     }
 }
@@ -321,6 +351,16 @@ void Game::Render()
             // Draw sprite batch stuff 
             Draw2D(m_MenuObjects2D);
 
+            break;
+        }
+
+        case GameState::GS_WON:
+        {
+            break;
+        }
+
+        case GameState::GS_LOST:
+        {
             break;
         }
 
@@ -666,6 +706,7 @@ void Game::CollisionHandling(std::shared_ptr<CMOGO> _PO, std::shared_ptr<CMOGO> 
 
 void Game::CheckCollision()
 {
+
     for (std::shared_ptr<CMOGO> m_PO: m_PhysicsObjects) for (std::shared_ptr<CMOGO> m_CO: m_ColliderObjects)
     {
         CollisionHandling(m_PO, m_CO);
@@ -674,25 +715,45 @@ void Game::CheckCollision()
     //dealing with player / enemy collision
     for (std::shared_ptr<Targets> temp_target : m_targets)
     {
+        //if collide, player lose
+        if (pPlayer->Intersects(*temp_target))
+        {
+            m_GD->m_GS = GS_LOST;
+        }
+
         CollisionHandling(pPlayer, temp_target);
+        for (std::shared_ptr<CMOGO> m_CO : m_ColliderObjects)
+        {
+            CollisionHandling(temp_target, m_CO);
+        }
+    }
+
+    //dealing with player / random objects collision
+    for (std::shared_ptr<CMOGO> temp_target : m_random_obj)
+    {
+        CollisionHandling(pPlayer, temp_target);
+        for (std::shared_ptr<CMOGO> m_CO : m_ColliderObjects)
+        {
+            CollisionHandling(temp_target, m_CO);
+        }
     }
 
     //world boundary
-    if (pPlayer->GetPos().z > 350)
+    if (pPlayer->GetPos().z > MAP_SIZE.y / 2)
     {
-        pPlayer->SetPosZ(350.0f);
+        pPlayer->SetPosZ(MAP_SIZE.y / 2);
     }
-    else if (pPlayer->GetPos().z < -350)
+    else if (pPlayer->GetPos().z < -MAP_SIZE.y / 2)
     {
-        pPlayer->SetPosZ(-350.0f);
+        pPlayer->SetPosZ(-MAP_SIZE.y / 2);
     }
 
-    if (pPlayer->GetPos().x > 350)
+    if (pPlayer->GetPos().x > MAP_SIZE.x / 2)
     {
-        pPlayer->SetPosX(350.0f);
+        pPlayer->SetPosX(MAP_SIZE.x / 2);
     }
-    else if (pPlayer->GetPos().x < -350)
+    else if (pPlayer->GetPos().x < -MAP_SIZE.x / 2)
     {
-        pPlayer->SetPosX(-350.0f);
+        pPlayer->SetPosX(-MAP_SIZE.x / 2);
     }
 }

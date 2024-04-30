@@ -12,6 +12,13 @@ Bullet::Bullet(string _fileName, ID3D11Device* _pd3dDevice, IEffectFactory* _EF)
 	gravity_enabled = false;
 }
 
+void Bullet::Tick(GameData* _GD)
+{
+	m_vel = velocity;
+	m_acc = Vector3::Zero;
+	CMOGO::Tick(_GD);
+}
+
 void Bullet::SetVelocity(Vector3 v3, Vector3 r3)
 {
 	SetYaw(r3.y);
@@ -19,7 +26,7 @@ void Bullet::SetVelocity(Vector3 v3, Vector3 r3)
 	//std::cout << '\n' << getAngleFromVector(m_vel) << '\n';
 	//std::cout << m_vel.z << '\n';
 	//std::cout << m_vel.x << '\n';
-	m_vel = RotateV3(v3, r3);
+	velocity = RotateV3(v3, r3);
 }
 
 Vector3 Bullet::RotateV3(Vector3 v3, Vector3 r3)

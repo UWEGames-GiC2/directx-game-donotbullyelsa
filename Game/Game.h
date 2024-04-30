@@ -66,8 +66,6 @@ private:
     int winX;
     int winY;
 
-    void BuildMap();
-
     void Update(DX::StepTimer const& _timer);
     void Render();
     void AddToDraw();
@@ -122,6 +120,11 @@ private:
 
     std::vector<std::shared_ptr<CMOGO>> m_ColliderObjects;
     std::vector<std::shared_ptr<CMOGO>> m_PhysicsObjects;
+
+    void SpawnRandomObject(string _s);
+    void BuildMap();
+    std::vector<std::shared_ptr<CMOGO>> m_random_obj;
+    const Vector2 MAP_SIZE = { 700.0f, 700.0f };
 
     void DoPhysics();
     void CheckCollision();

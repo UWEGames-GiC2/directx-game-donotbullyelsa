@@ -13,7 +13,9 @@ enum GameState {
 	GS_PAUSE,
 	GS_GAME_OVER,
 	GS_COUNT,
-	GS_MENU
+	GS_MENU,
+	GS_WON,
+	GS_LOST
 };
 
 #endif
