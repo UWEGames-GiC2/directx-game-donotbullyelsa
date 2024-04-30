@@ -183,6 +183,11 @@ bool CMOGO::Intersects(const CMOGO& other) const
 	return (c1.Intersects(c2));
 }
 
+float CMOGO::getMagnitude(Vector3 v3)
+{
+	return sqrt(v3.x * v3.x + v3.z * v3.z);
+}
+
 void CMOGO::stopGravity()
 {
 	m_acc.y = 0;

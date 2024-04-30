@@ -17,7 +17,6 @@ private:
 
 	Vector3 RotateV3(Vector3 v3, Vector3 r3);
 	Vector3 velocity;
-	float getMagnitude(Vector3 v3);
 	float getAngleFromVector(Vector3 v3);
 };
 

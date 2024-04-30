@@ -99,6 +99,17 @@ void Player::Tick(GameData* _GD)
 		m_vel *= -0.9; //VERY simple bounce back
 	}
 
+	//destroy bullets that goes too far
+	for (int i = 0; i < bullet.size(); i++)
+	{
+		Vector3 v3_dif = bullet[i]->GetPos() - GetPos();
+		if (getMagnitude(v3_dif) > 1000.0f)
+		{
+			bullet[i].reset();
+			bullet.erase(bullet.begin() + i);
+		}
+	}
+
 	//apply my base behaviour
 	CMOGO::Tick(_GD);
 

@@ -47,11 +47,6 @@ Vector3 Bullet::RotateV3(Vector3 v3, Vector3 r3)
 	return v3;
 }
 
-float Bullet::getMagnitude(Vector3 v3)
-{
-	return sqrt(v3.x * v3.x + v3.z * v3.z);
-}
-
 //in radian
 float Bullet::getAngleFromVector(Vector3 v3)
 {

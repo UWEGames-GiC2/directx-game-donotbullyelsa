@@ -50,6 +50,7 @@ protected:
 	static int m_count;
 
 	bool gravity_enabled = false;
+	float getMagnitude(Vector3 v3);
 	
 };
 
