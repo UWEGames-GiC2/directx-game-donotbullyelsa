@@ -125,10 +125,17 @@ string Player::Shoot(std::shared_ptr<Bullet> _bullet)
 	bullet.push_back(_bullet);
 	bullet[bullet.size() - 1]->SetVelocity(Vector3(0.0f, 0.0f, -200.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
 
+
+	return "aaacd";
+}
+
+void Player::Reload()
+{
 	//reset cooldown timer
 	weapon_cooldown = COOLDOWN_TIME;
 
-	return "aaacd";
+	//reload
+	ammo = AMMO_LIMIT;
 }
 
 bool Player::canSpawnBullet()

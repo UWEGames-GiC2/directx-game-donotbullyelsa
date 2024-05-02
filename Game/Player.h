@@ -26,6 +26,7 @@ protected:
 	float weapon_cooldown = 0.0f;
 	const int AMMO_LIMIT = 6;
 	int ammo = AMMO_LIMIT;
+	void Reload();
 };
 
 #endif
