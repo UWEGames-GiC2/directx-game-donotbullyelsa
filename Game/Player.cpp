@@ -28,18 +28,14 @@ void Player::Tick(GameData* _GD)
 	switch (_GD->m_GS)
 	{
 	case GS_PLAY_MAIN_CAM:
-		/**
-	{
-		{
-			//MOUSE CONTROL SCHEME HERE
-			float speed = 10.0f;
-			m_acc.x += speed * _GD->m_MS.x;
-			m_acc.z += speed * _GD->m_MS.y;
-			//break;
-		}
-	} **/
 	case GS_PLAY_TPS_CAM:
 	{
+
+		//MOUSE CONTROL SCHEME HERE
+		float speed = 10.0f;
+		m_acc.x += speed * _GD->m_MS.x;
+		m_acc.z += speed * _GD->m_MS.y;
+
 		//TURN AND FORWARD CONTROL HERE
 		Vector3 forwardMove = 200.0f * Vector3::Forward;
 		Matrix rotMove = Matrix::CreateRotationY(m_yaw);
