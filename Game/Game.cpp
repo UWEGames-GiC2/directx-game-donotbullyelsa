@@ -129,7 +129,7 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_MenuObjects2D.push_back(text);
 
     score_text = std::make_shared<TextGO2D>("");
-    score_text->SetPos(Vector2(100, 100));
+    score_text->SetPos(Vector2(winX - 150, winY - 100));
     score_text->SetColour(Color((float*)&Colors::Yellow));
     m_GameObjects2D.push_back(score_text);
 
@@ -157,6 +157,7 @@ void Game::BuildMap()
 
     }
 
+    //spawn some objects randomly around the map
     SpawnRandomObject("pistol");
     SpawnRandomObject("uzi");
     SpawnRandomObject("sniper");
@@ -270,7 +271,6 @@ void Game::Update(DX::StepTimer const& _timer)
             //player shoot
             else if (m_GD->m_KBS_tracker.pressed.J)
             {
-                
                 if (pPlayer->canSpawnBullet())
                 {
                     std::shared_ptr<Bullet> m_bullet = std::make_shared<Bullet>("ammo_pistol", m_d3dDevice.Get(), m_fxFactory);
@@ -278,7 +278,8 @@ void Game::Update(DX::StepTimer const& _timer)
                     m_bullet->SetPos(pPlayer->GetPos());
                     m_GameObjects.push_back(m_bullet);
                     m_PhysicsObjects.push_back(m_bullet);
-                    pPlayer->Shoot(m_bullet);
+                    string _s = pPlayer->Shoot(m_bullet);
+                    score_text->SetText(_s);
                 }
             }
 
@@ -298,9 +299,6 @@ void Game::Update(DX::StepTimer const& _timer)
             }
 
             DoPhysics();
-
-            //update score
-            score_text->SetText(to_string(m_GD->score));
         }
     }
 }

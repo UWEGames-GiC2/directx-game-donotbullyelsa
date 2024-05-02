@@ -30,24 +30,31 @@ void Player::Tick(GameData* _GD)
 		case GS_PLAY_MAIN_CAM:
 		case GS_PLAY_TPS_CAM:
 		{
-
-			//MOUSE CONTROL SCHEME HERE
-			float speed = 10.0f;
-			m_acc.x += speed * _GD->m_MS.x;
-			m_acc.z += speed * _GD->m_MS.y;
-
 			//TURN AND FORWARD CONTROL HERE
 			Vector3 forwardMove = 200.0f * Vector3::Forward;
 			Matrix rotMove = Matrix::CreateRotationY(m_yaw);
 			forwardMove = Vector3::Transform(forwardMove, rotMove);
+
+			bool keyboard_movement = false;
 			if (_GD->m_KBS.W)
 			{
 				m_acc += forwardMove;
+				keyboard_movement = true;
 			}
 			if (_GD->m_KBS.S)
 			{
 				m_acc -= forwardMove;
+				keyboard_movement = true;
 			}
+
+			if (!keyboard_movement)
+			{
+				//MOUSE CONTROL SCHEME HERE
+				float speed = 10.0f;
+				m_acc.x += speed * _GD->m_MS.x;
+				m_acc.z += speed * _GD->m_MS.y;
+			}
+
 			break;
 		}
 	}
@@ -112,13 +119,16 @@ void Player::Tick(GameData* _GD)
 	CMOGO::Tick(_GD);
 }
 
-void Player::Shoot(std::shared_ptr<Bullet> _bullet)
+//return the string of ammo text
+string Player::Shoot(std::shared_ptr<Bullet> _bullet)
 {
 	bullet.push_back(_bullet);
 	bullet[bullet.size() - 1]->SetVelocity(Vector3(0.0f, 0.0f, -200.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
 
 	//reset cooldown timer
 	weapon_cooldown = COOLDOWN_TIME;
+
+	return "aaacd";
 }
 
 bool Player::canSpawnBullet()

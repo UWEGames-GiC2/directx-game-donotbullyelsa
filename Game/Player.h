@@ -16,7 +16,7 @@ public:
 
 	virtual void Tick(GameData* _GD) override;
 
-	void Shoot(std::shared_ptr<Bullet> _bullet);
+	string Shoot(std::shared_ptr<Bullet> _bullet);
 	std::vector<std::shared_ptr<Bullet>> bullet;
 
 	bool canSpawnBullet();
@@ -24,6 +24,8 @@ public:
 
 protected:
 	float weapon_cooldown = 0.0f;
+	const int AMMO_LIMIT = 6;
+	int ammo = AMMO_LIMIT;
 };
 
 #endif
