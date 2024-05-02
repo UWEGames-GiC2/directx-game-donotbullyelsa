@@ -243,7 +243,7 @@ void Game::Update(DX::StepTimer const& _timer)
         default:
         {
             enemy_spawn_clock += elapsedTime;
-            EnemySpawn(100, 60.0f);
+            EnemySpawn(100, (difficulty + 1) * 20.0f);
 
             //upon space bar switch camera state
             //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
@@ -270,8 +270,8 @@ void Game::Update(DX::StepTimer const& _timer)
             //player shoot
             else if (m_GD->m_KBS_tracker.pressed.J)
             {
-                //std::cout << pPlayer->isBulletExist();
-                //if (!pPlayer->isBulletExist())
+                
+                if (pPlayer->canSpawnBullet())
                 {
                     std::shared_ptr<Bullet> m_bullet = std::make_shared<Bullet>("ammo_pistol", m_d3dDevice.Get(), m_fxFactory);
                     m_bullet->SetScale(10.0f);
@@ -280,7 +280,6 @@ void Game::Update(DX::StepTimer const& _timer)
                     m_PhysicsObjects.push_back(m_bullet);
                     pPlayer->Shoot(m_bullet);
                 }
-                
             }
 
             //update all objects

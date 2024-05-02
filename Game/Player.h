@@ -19,7 +19,11 @@ public:
 	void Shoot(std::shared_ptr<Bullet> _bullet);
 	std::vector<std::shared_ptr<Bullet>> bullet;
 
+	bool canSpawnBullet();
+	const float COOLDOWN_TIME = 1.0f;
+
 protected:
+	float weapon_cooldown = 0.0f;
 };
 
 #endif

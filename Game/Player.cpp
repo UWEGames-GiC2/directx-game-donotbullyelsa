@@ -27,29 +27,29 @@ void Player::Tick(GameData* _GD)
 {
 	switch (_GD->m_GS)
 	{
-	case GS_PLAY_MAIN_CAM:
-	case GS_PLAY_TPS_CAM:
-	{
-
-		//MOUSE CONTROL SCHEME HERE
-		float speed = 10.0f;
-		m_acc.x += speed * _GD->m_MS.x;
-		m_acc.z += speed * _GD->m_MS.y;
-
-		//TURN AND FORWARD CONTROL HERE
-		Vector3 forwardMove = 200.0f * Vector3::Forward;
-		Matrix rotMove = Matrix::CreateRotationY(m_yaw);
-		forwardMove = Vector3::Transform(forwardMove, rotMove);
-		if (_GD->m_KBS.W)
+		case GS_PLAY_MAIN_CAM:
+		case GS_PLAY_TPS_CAM:
 		{
-			m_acc += forwardMove;
+
+			//MOUSE CONTROL SCHEME HERE
+			float speed = 10.0f;
+			m_acc.x += speed * _GD->m_MS.x;
+			m_acc.z += speed * _GD->m_MS.y;
+
+			//TURN AND FORWARD CONTROL HERE
+			Vector3 forwardMove = 200.0f * Vector3::Forward;
+			Matrix rotMove = Matrix::CreateRotationY(m_yaw);
+			forwardMove = Vector3::Transform(forwardMove, rotMove);
+			if (_GD->m_KBS.W)
+			{
+				m_acc += forwardMove;
+			}
+			if (_GD->m_KBS.S)
+			{
+				m_acc -= forwardMove;
+			}
+			break;
 		}
-		if (_GD->m_KBS.S)
-		{
-			m_acc -= forwardMove;
-		}
-		break;
-	}
 	}
 
 	//change orinetation of player
@@ -105,15 +105,23 @@ void Player::Tick(GameData* _GD)
 			bullet.erase(bullet.begin() + i);
 		}
 	}
+	//update weapon cooldown clock
+	weapon_cooldown -= _GD->m_dt;
 
 	//apply my base behaviour
 	CMOGO::Tick(_GD);
-
-	//std::cout << m_vel.x << '\n' << m_vel.z << '\n';
 }
 
 void Player::Shoot(std::shared_ptr<Bullet> _bullet)
 {
 	bullet.push_back(_bullet);
 	bullet[bullet.size() - 1]->SetVelocity(Vector3(0.0f, 0.0f, -200.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
+
+	//reset cooldown timer
+	weapon_cooldown = COOLDOWN_TIME;
+}
+
+bool Player::canSpawnBullet()
+{
+	return (weapon_cooldown <= 0);
 }
