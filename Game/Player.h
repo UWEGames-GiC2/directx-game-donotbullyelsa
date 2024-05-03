@@ -25,10 +25,10 @@ public:
 	const float COOLDOWN_TIME = 1.0f;
 	void Reload();
 	std::weak_ptr<TextGO2D> ammo_text;
+	const int AMMO_LIMIT = 6;
 
 protected:
 	float weapon_cooldown = 0.0f;
-	const int AMMO_LIMIT = 6;
 	int ammo = AMMO_LIMIT;
 };
 

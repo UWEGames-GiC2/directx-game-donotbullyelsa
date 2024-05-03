@@ -128,10 +128,9 @@ void Game::Initialize(HWND _window, int _width, int _height)
     title_text->SetColour(Color((float*)&Colors::Yellow));
     m_MenuObjects2D.push_back(title_text);
 
-    score_text = std::make_shared<TextGO2D>("");
+    score_text = std::make_shared<TextGO2D>(to_string(pPlayer->AMMO_LIMIT) + " / " + to_string(pPlayer->AMMO_LIMIT));
     score_text->SetPos(Vector2(50, winY - 100));
     score_text->SetColour(Color((float*)&Colors::Yellow));
-    score_text->SetText("6 / 6");
     m_GameObjects2D.push_back(score_text);
     pPlayer->ammo_text = score_text;
 
@@ -213,7 +212,7 @@ void Game::Update(DX::StepTimer const& _timer)
 
     //read input
     ReadInput();
-    //m_GD->m_GS = GameState::GS_WON;
+    //m_GD->m_GS = GameState::GS_LOST;
 
     //gamestates
     switch (m_GD->m_GS)
@@ -234,6 +233,11 @@ void Game::Update(DX::StepTimer const& _timer)
         {
             //std::cout << "winner ";
             title_text->SetText("You've won!\nPress Enter to continue\nplaying endless mode.");
+
+            if (m_GD->m_KBS.Enter)
+            {
+                m_GD->m_GS = GameState::GS_PLAY_MAIN_CAM;
+            }
             break;
         }
 
@@ -242,6 +246,11 @@ void Game::Update(DX::StepTimer const& _timer)
         {
             //std::cout << "loser ";
             title_text->SetText("Sorry, you've lost.");
+
+            if (m_GD->m_KBS.Enter)
+            {
+                std::exit(1);
+            }
             break;
         }
 
@@ -289,6 +298,12 @@ void Game::Update(DX::StepTimer const& _timer)
                     m_PhysicsObjects.push_back(m_bullet);
                     pPlayer->Shoot(m_bullet);
                 }
+            }
+
+            //reload
+            else if (m_GD->m_KBS_tracker.pressed.R)
+            {
+                pPlayer->Reload();
             }
 
             //update all objects
@@ -368,7 +383,6 @@ void Game::Render()
         case GameState::GS_WON:
         case GameState::GS_LOST:
         {
-
             // Draw sprite batch stuff 
             Draw2D(m_MenuObjects2D);
 
@@ -391,6 +405,10 @@ void Game::Render()
 
             // Draw sprite batch stuff 
             list<std::weak_ptr<GameObject2D>> m_GameObjects2D_temp;
+            for (std::shared_ptr<GameObject2D> m_GO2D_temp : m_GameObjects2D)
+            {
+                m_GameObjects2D_temp.push_back(m_GO2D_temp);
+            }
             Draw2D(m_GameObjects2D_temp);
         }
     }

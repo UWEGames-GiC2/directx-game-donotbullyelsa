@@ -135,7 +135,7 @@ void Player::Shoot(std::shared_ptr<Bullet> _bullet)
 
 	ammo--;
 	//text update
-	ammo_text.lock()->SetText(to_string(ammo) + " / 6");
+	ammo_text.lock()->SetText(to_string(ammo) + " / " + to_string(AMMO_LIMIT));
 }
 
 void Player::Reload()
