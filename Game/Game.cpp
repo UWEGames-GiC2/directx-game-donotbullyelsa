@@ -123,15 +123,17 @@ void Game::Initialize(HWND _window, int _width, int _height)
     m_DD->m_cam = m_cam.get();
     m_DD->m_light = m_light.get();
 
-    std::shared_ptr<TextGO2D> text = std::make_shared<TextGO2D>("DirectX Game");
-    text->SetPos(Vector2(winX / 5, winY / 5));
-    text->SetColour(Color((float*)&Colors::Yellow));
-    m_MenuObjects2D.push_back(text);
+    title_text = std::make_shared<TextGO2D>("DirectX Game");
+    title_text->SetPos(Vector2(winX / 5, winY / 5));
+    title_text->SetColour(Color((float*)&Colors::Yellow));
+    m_MenuObjects2D.push_back(title_text);
 
     score_text = std::make_shared<TextGO2D>("");
-    score_text->SetPos(Vector2(winX - 150, winY - 100));
+    score_text->SetPos(Vector2(50, winY - 100));
     score_text->SetColour(Color((float*)&Colors::Yellow));
+    score_text->SetText("6 / 6");
     m_GameObjects2D.push_back(score_text);
+    pPlayer->ammo_text = score_text;
 
     BuildMap();
 }
@@ -211,6 +213,7 @@ void Game::Update(DX::StepTimer const& _timer)
 
     //read input
     ReadInput();
+    //m_GD->m_GS = GameState::GS_WON;
 
     //gamestates
     switch (m_GD->m_GS)
@@ -229,14 +232,16 @@ void Game::Update(DX::StepTimer const& _timer)
         //win state
         case GameState::GS_WON:
         {
-            std::cout << "winner ";
+            //std::cout << "winner ";
+            title_text->SetText("You've won!\nPress Enter to continue\nplaying endless mode.");
             break;
         }
 
         //lose state
         case GameState::GS_LOST:
         {
-            std::cout << "loser ";
+            //std::cout << "loser ";
+            title_text->SetText("Sorry, you've lost.");
             break;
         }
 
@@ -271,15 +276,18 @@ void Game::Update(DX::StepTimer const& _timer)
             //player shoot
             else if (m_GD->m_KBS_tracker.pressed.J)
             {
-                if (pPlayer->canSpawnBullet())
+                if (pPlayer->isAmmoRunOut())
+                {
+                    pPlayer->Reload();
+                }
+                else if (pPlayer->canSpawnBullet())
                 {
                     std::shared_ptr<Bullet> m_bullet = std::make_shared<Bullet>("ammo_pistol", m_d3dDevice.Get(), m_fxFactory);
                     m_bullet->SetScale(10.0f);
                     m_bullet->SetPos(pPlayer->GetPos());
                     m_GameObjects.push_back(m_bullet);
                     m_PhysicsObjects.push_back(m_bullet);
-                    string _s = pPlayer->Shoot(m_bullet);
-                    score_text->SetText(_s);
+                    pPlayer->Shoot(m_bullet);
                 }
             }
 
@@ -357,21 +365,13 @@ void Game::Render()
     switch (m_GD->m_GS)
     {
         case GameState::GS_MENU:
+        case GameState::GS_WON:
+        case GameState::GS_LOST:
         {
 
             // Draw sprite batch stuff 
             Draw2D(m_MenuObjects2D);
 
-            break;
-        }
-
-        case GameState::GS_WON:
-        {
-            break;
-        }
-
-        case GameState::GS_LOST:
-        {
             break;
         }
 
@@ -390,7 +390,8 @@ void Game::Render()
             }
 
             // Draw sprite batch stuff 
-            Draw2D(m_GameObjects2D);
+            list<std::weak_ptr<GameObject2D>> m_GameObjects2D_temp;
+            Draw2D(m_GameObjects2D_temp);
         }
     }
 
@@ -400,12 +401,12 @@ void Game::Render()
     Present();
 }
 
-void Game::Draw2D(list<std::shared_ptr<GameObject2D>> list_of_GO2D)
+void Game::Draw2D(list<std::weak_ptr<GameObject2D>> list_of_GO2D)
 {
     m_DD2D->m_Sprites->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-    for (list< std::shared_ptr<GameObject2D>>::iterator it = list_of_GO2D.begin(); it != list_of_GO2D.end(); it++)
+    for (list< std::weak_ptr<GameObject2D>>::iterator it = list_of_GO2D.begin(); it != list_of_GO2D.end(); it++)
     {
-        (*it)->Draw(m_DD2D);
+        (*it).lock()->Draw(m_DD2D);
     }
 
     m_DD2D->m_Sprites->End();

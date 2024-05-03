@@ -115,8 +115,9 @@ private:
 
     list<std::weak_ptr<GameObject>> m_GameObjects; //data structure to hold pointers to the 3D Game Objects
     list<std::shared_ptr<GameObject2D>> m_GameObjects2D; //data structure to hold pointers to the 2D Game Objects 
-    list<std::shared_ptr<GameObject2D>> m_MenuObjects2D;
-    void Draw2D(list<std::shared_ptr<GameObject2D>> list_of_GO2D);
+    list<std::weak_ptr<GameObject2D>> m_MenuObjects2D;
+    std::shared_ptr<TextGO2D> title_text;
+    void Draw2D(list<std::weak_ptr<GameObject2D>> list_of_GO2D);
 
     std::vector<std::shared_ptr<CMOGO>> m_ColliderObjects;
     std::vector<std::weak_ptr<CMOGO>> m_PhysicsObjects;

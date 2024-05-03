@@ -112,6 +112,14 @@ void Player::Tick(GameData* _GD)
 			bullet.erase(bullet.begin() + i);
 		}
 	}
+
+	//if reloading is done
+	if ((weapon_cooldown <= _GD->m_dt) && (weapon_cooldown > 0))
+	{
+		//text update
+		ammo_text.lock()->SetText(to_string(ammo) + " / 6");
+	}
+
 	//update weapon cooldown clock
 	weapon_cooldown -= _GD->m_dt;
 
@@ -120,13 +128,14 @@ void Player::Tick(GameData* _GD)
 }
 
 //return the string of ammo text
-string Player::Shoot(std::shared_ptr<Bullet> _bullet)
+void Player::Shoot(std::shared_ptr<Bullet> _bullet)
 {
 	bullet.push_back(_bullet);
 	bullet[bullet.size() - 1]->SetVelocity(Vector3(0.0f, 0.0f, -200.0f), Vector3(GetPitch(), GetYaw(), GetRoll()));
 
-
-	return "aaacd";
+	ammo--;
+	//text update
+	ammo_text.lock()->SetText(to_string(ammo) + " / 6");
 }
 
 void Player::Reload()
@@ -136,9 +145,17 @@ void Player::Reload()
 
 	//reload
 	ammo = AMMO_LIMIT;
+	
+	//text update
+	ammo_text.lock()->SetText("Reloading...");
 }
 
 bool Player::canSpawnBullet()
 {
-	return (weapon_cooldown <= 0);
+	return ((weapon_cooldown <= 0) && (!isAmmoRunOut()));
+}
+
+bool Player::isAmmoRunOut()
+{
+	return (ammo <= 0);
 }
