@@ -70,6 +70,7 @@ void Player::Tick(GameData* _GD)
 		m_yaw -= rotSpeed;
 	}
 
+	/**
 	//move player up and down
 	if (_GD->m_KBS.R)
 	{
@@ -83,7 +84,7 @@ void Player::Tick(GameData* _GD)
 	}
 
 	//jump
-	if (_GD->m_KBS_tracker.pressed.K)
+	if (_GD->m_KBS.K)
 	{
 		if (grounded)
 		{
@@ -91,6 +92,7 @@ void Player::Tick(GameData* _GD)
 			gravity = -GRAVITY_CONST;
 		}
 	}
+	**/
 
 	//limit motion of the player
 	float length = m_pos.Length();
@@ -135,7 +137,7 @@ void Player::Shoot(std::shared_ptr<Bullet> _bullet)
 
 	ammo--;
 	//text update
-	ammo_text.lock()->SetText(to_string(ammo) + " / " + to_string(AMMO_LIMIT));
+	ammo_text.lock()->SetText("Ammo: " + to_string(ammo) + " / " + to_string(AMMO_LIMIT));
 }
 
 void Player::Reload()

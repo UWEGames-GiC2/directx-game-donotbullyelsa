@@ -128,11 +128,16 @@ void Game::Initialize(HWND _window, int _width, int _height)
     title_text->SetColour(Color((float*)&Colors::Yellow));
     m_MenuObjects2D.push_back(title_text);
 
-    score_text = std::make_shared<TextGO2D>(to_string(pPlayer->AMMO_LIMIT) + " / " + to_string(pPlayer->AMMO_LIMIT));
-    score_text->SetPos(Vector2(50, winY - 100));
+    ammo_text = std::make_shared<TextGO2D>("Ammo: " + to_string(pPlayer->AMMO_LIMIT) + " / " + to_string(pPlayer->AMMO_LIMIT));
+    ammo_text->SetPos(Vector2(50, winY - 100));
+    ammo_text->SetColour(Color((float*)&Colors::Yellow));
+    m_GameObjects2D.push_back(ammo_text);
+    pPlayer->ammo_text = ammo_text;
+
+    score_text = std::make_shared<TextGO2D>("Score: " + to_string(score));
+    score_text->SetPos(Vector2(50, winY - 200));
     score_text->SetColour(Color((float*)&Colors::Yellow));
     m_GameObjects2D.push_back(score_text);
-    pPlayer->ammo_text = score_text;
 
     BuildMap();
 }
@@ -212,7 +217,8 @@ void Game::Update(DX::StepTimer const& _timer)
 
     //read input
     ReadInput();
-    //m_GD->m_GS = GameState::GS_LOST;
+    //m_GD->m_GS = GameState::GS_GAME_OVER;
+    //basic_game_done = true;
 
     //gamestates
     switch (m_GD->m_GS)
@@ -233,6 +239,7 @@ void Game::Update(DX::StepTimer const& _timer)
         {
             //std::cout << "winner ";
             title_text->SetText("You've won!\nPress Enter to continue\nplaying endless mode.");
+            basic_game_done = true;
 
             if (m_GD->m_KBS.Enter)
             {
@@ -254,11 +261,33 @@ void Game::Update(DX::StepTimer const& _timer)
             break;
         }
 
+        //endless mode
+        case GameState::GS_GAME_OVER:
+        {
+            title_text->SetText("Sorry, the game is over.\nYour final score is " + to_string(score) + ".");
+
+            if (m_GD->m_KBS.Enter)
+            {
+                std::exit(1);
+            }
+            break;
+        }
+
         //main game
         default:
         {
+            score_text->SetText("Score: " + to_string(score) + "\nEnemy spawn time: " + to_string(1 - endless_difficulty));
+
+            //update spawn timer
             enemy_spawn_clock += elapsedTime;
-            EnemySpawn(100, (difficulty + 1) * 20.0f);
+            if (basic_game_done)
+            {
+                EnemySpawn(100, (NUM_LEVEL + 1) * 20.0f);
+            }
+            else
+            {
+                EnemySpawn(100, (difficulty + 1) * 20.0f);
+            }
 
             //upon space bar switch camera state
             //see docs here for what's going on: https://github.com/Microsoft/DirectXTK/wiki/Keyboard
@@ -283,7 +312,7 @@ void Game::Update(DX::StepTimer const& _timer)
             }
 
             //player shoot
-            else if (m_GD->m_KBS_tracker.pressed.J)
+            else if (m_GD->m_KBS_tracker.pressed.E)
             {
                 if (pPlayer->isAmmoRunOut())
                 {
@@ -329,26 +358,50 @@ void Game::Update(DX::StepTimer const& _timer)
 // also check if needs to spawn
 void Game::EnemySpawn(int _health, float _speed)
 {
-    if (enemy_spawn_clock >= 1.0f)
+    if (enemy_spawn_clock >= ENEMY_SPAWN_TIME - endless_difficulty)
     {
-        enemy_spawn_clock -= ENEMY_SPAWN_TIME;
-        if (m_targets.size() == 0)
-        {
-            difficulty++;
-            if (difficulty > 5)
-            {
-                m_GD->m_GS = GS_WON;
-            }
+        enemy_spawn_clock -= ENEMY_SPAWN_TIME - endless_difficulty;
 
-            else
+        //basic game
+        if (!basic_game_done)
+        {
+            if (m_targets.size() == 0)
             {
-                //make a seperated collision layer for enemies
-                std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory, _speed);
-                temp_target->health = _health;
-                m_targets.push_back(temp_target);
-                temp_target->SetScale(10.0f);
-                m_GameObjects.push_back(temp_target);
+                difficulty++;
+                if (difficulty > NUM_LEVEL)
+                {
+                    m_GD->m_GS = GS_WON;
+                }
+
+                else
+                {
+                    //make a seperated collision layer for enemies
+                    std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory, _speed);
+                    temp_target->health = _health;
+                    m_targets.push_back(temp_target);
+                    temp_target->SetScale(10.0f);
+                    m_GameObjects.push_back(temp_target);
+                }
             }
+        }
+
+        //after defeating 5 enemies, gamemode change
+        //more than one enemy can exist in the world at the same time, all of them can be killed in one hit
+        else
+        {
+            //make a seperated collision layer for enemies
+            std::shared_ptr<Targets> temp_target = std::make_shared<Targets>("BirdModelV1", m_d3dDevice.Get(), m_fxFactory, _speed);
+            temp_target->health = 1;
+            m_targets.push_back(temp_target);
+            temp_target->SetScale(10.0f);
+            m_GameObjects.push_back(temp_target);
+            
+            
+             endless_difficulty += 0.02f; 
+             if (endless_difficulty > 0.9f)
+             {
+                 endless_difficulty = 0.9f;
+             }
         }
     }
 }
@@ -382,6 +435,7 @@ void Game::Render()
         case GameState::GS_MENU:
         case GameState::GS_WON:
         case GameState::GS_LOST:
+        case GameState::GS_GAME_OVER:
         {
             // Draw sprite batch stuff 
             Draw2D(m_MenuObjects2D);
@@ -759,7 +813,14 @@ void Game::CheckCollision()
             //if collide, player lose
             if (pPlayer->Intersects(*temp_target.lock()))
             {
-                m_GD->m_GS = GS_LOST;
+                if (basic_game_done)
+                {
+                    m_GD->m_GS = GS_GAME_OVER;
+                }
+                else
+                {
+                    m_GD->m_GS = GS_LOST;
+                }
             }
 
             bool kill_flag = false;
@@ -778,13 +839,14 @@ void Game::CheckCollision()
                 }
             }
 
+            //delete bullet that should be deleted
             int i = 0;
             while (pPlayer->bullet.size() > i)
             {
                 std::shared_ptr<Bullet> it = pPlayer->bullet[i];
                 if (it == nullptr)
                 {
-                    pPlayer->bullet.erase(pPlayer->bullet.begin() + i);
+                    pPlayer->bullet.erase(pPlayer->bullet.begin() + i);                    
                 }
                 else
                 {
@@ -792,12 +854,14 @@ void Game::CheckCollision()
                 }
             }
 
-
+            //remove dead enemy
             if (kill_flag)
             {
+                score += m_targets[j]->SPEED * 5;
                 m_targets[j].reset();
             }
 
+            //handle collision for enemy surviving
             else
             {
                 CollisionHandling(pPlayer, temp_target.lock());

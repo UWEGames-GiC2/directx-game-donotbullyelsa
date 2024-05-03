@@ -133,11 +133,17 @@ private:
 
     std::shared_ptr<Player> pPlayer;
     std::shared_ptr<TextGO2D> score_text;
-    std::vector<std::shared_ptr<Targets>> m_targets; //vector created for future development
+    int score = 0;
+
+    std::shared_ptr<TextGO2D> ammo_text;
+    std::vector<std::shared_ptr<Targets>> m_targets; 
     void EnemySpawn(int _health, float _speed);
     float enemy_spawn_clock = 0.0f;
     const float ENEMY_SPAWN_TIME = 1.0f;
+    float endless_difficulty = 0.0f;
     int difficulty = 0;
+    const int NUM_LEVEL = 5;
+    bool basic_game_done = false;
                                          
     //sound stuff
 	//This uses a simple system, but a better pipeline can be used using Wave Banks
